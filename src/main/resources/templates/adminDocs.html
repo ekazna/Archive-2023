@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Работа с документами</title>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+    rel="stylesheet">
+</head>
+<body>
+
+    <header style="background: #428bca;">
+        <br>
+            <div>
+
+            <div style="display: inline-block; margin-left: 50px;">
+                <a href="http://localhost:8090/admin/" ><button class="btn btn-warning">Все документы</button></a>
+            </div>
+
+            <div style="display: inline-block;">  
+                <a href="http://localhost:8090/admin/add/" ><button  class="btn btn-default">Добавить документ</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/copies/" ><button  class="btn btn-default">Запросы</button></a>
+            </div>
+            
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/originals/" ><button  class="btn btn-default">Выдача</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/returns/" ><button  class="btn btn-default">Возврат</button></a>
+            </div>
+                        
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/statistics/" ><button  class="btn btn-default">Статистика</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/about" ><button  class="btn btn-default">Об авторе</button></a>
+            </div>
+            
+            <div style="display: inline-block;">
+                <form name="logoutForm" th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-danger">Выйти</button>
+                </form>
+            </div>
+        </div>
+        <br>
+      </header>
+      
+    <main style="margin-left: 50px;margin-right: 50px;">
+    
+    <br>
+
+
+    <button onclick="toggle()" type="button" class="btn btn-primary">Фильтры</button>
+    
+    <div style="display: inline-block;">
+        <a href="http://localhost:8090/admin/expired/"><button class="btn btn-danger">Документы на удаление</button></a>
+    </div>
+    
+
+    <div class="row" id = "hiddenblock" style="display: none;">
+        <div class="col-md-8 offset-md-4"><br>
+        <form th:action="@{http://localhost:8090/admin/}" th:object="${testModel}">
+
+            
+
+        <label for="keyword">Поиск по названию:</label><br>
+        <input type="text" name="keyword" id="keyword" size = 125 th:value="*{keyword}"/><br><br>
+
+
+        <label for="dropDownListDeps">Департамент:</label><br>
+        <select class="form-control"  id="dropDownListDeps" th:field="*{deptId}">
+            <option value="">--Select option--</option>
+            <option th:each="department : ${listDepts}" th:value="${department.id}" th:text="${department.name}"></option>
+        </select>
+        <br> 
+
+        <label for="dropDownListDocTypes">Тип документа</label><br>
+        <select class="form-control" id="dropDownListDocTypes" th:field="*{docTypeId}">
+            <option value="">--Select option--</option>
+            <option th:each="docType : ${listDocTypes}" th:value="${docType.id}" th:text="${docType.name}"></option>
+        </select>
+        <br>
+
+        <label for="dropDownListClients">Клиент:</label><br>
+        <select class="form-control" id="dropDownListClients" th:field="*{clientId}">
+            <option value="">--Select option--</option>
+            <option th:each="client : ${listClients}" th:value="${client.id}" th:text="${client.name}"></option>
+        </select>
+        <br>
+
+        <label for="dropDownListEmployees">Сотрудник:</label><br>
+        <select class="form-control" id="dropDownListEmployees" th:field="*{employeeId}">
+            <option value="">--Select option--</option>
+            <option th:each="emp : ${listEmployees}" th:value="${emp.id}" th:text="${emp.lastName} + ' ' + ${emp.firstName}"></option>
+        </select>
+        <br>
+        <label for="start">Дата на документе:</label><br>
+        <input type="date" id="start" name="doc_date" min="2000-01-01" max="2050-12-31" th:field="*{docDate}"><br>
+        <br>
+
+        <label for="dropDownListPresent">Наличие оригинала в архиве:</label><br>
+        <select class="form-control"  id="dropDownListPresent" th:field="*{present}">
+            <option value="">--Select option--</option>
+            <option th:value="true" th:text="Да"></option>
+            <option th:value="false" th:text="Нет"></option>
+        </select>
+        <br> 
+        
+
+        <label for="dropDownListOrderBy">Сортировать по:</label><br>
+        <select class="form-control" id="dropDownListOrderBy" th:field="*{sortBy}">
+            <option th:value="name" th:text="Названию" selected></option>
+            <option th:value="docDate" th:text="Дате"></option>
+            <option th:value="folder" th:text="Папке"></option>
+            <option th:value="deletionDate" th:text="Удалению"></option>
+            
+        </select>
+        <br>
+
+        <label for="dropDownListOrderByType">Порядок сортировки:</label><br>
+        <select class="form-control" id="dropDownListOrderByType" th:field="*{sortingType}">
+            <option th:value="0" th:text="Прямой" selected></option>
+            <option th:value="1" th:text="Обратный"></option>
+        </select>
+        <br>
+       
+
+        <input type="submit" class="btn btn-success btn"  value="Поиск"/>
+        <input type="button" class="btn btn-warning btn" value="Очистить" id="btnClean" onclick="clearSearch()"/>
+    </form> 
+    </div>
+    </div>
+    <br> <br> 
+    <table id="1" class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Документ</th>
+            <th scope="col">Дата</th>
+            <th scope="col">Дата удаления</th>
+            <th scope="col">Место</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr th:each="doc: ${listDocs}">
+                <th scope="row" th:text="${doc.name}"></th>
+                <th scope="row" th:text="${doc.docDate}"></th>
+                <th scope="row" th:text="${doc.deletionDate}"></th>
+                <th scope="row" th:text="${doc.folder}"></th>
+                <th>
+                    
+                    <a th:href="@{'/admin/edit/'+${doc.id}}"><button type="button" class="btn btn-primary">Редактировать</button></a>
+                </th>
+                <th>
+                    <form th:action="@{'/admin/delete/{id}'(id=${doc.id})}" th:method ='post'>
+                    <input type="hidden" name="_method" value="delete"/>
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                    </form>
+                </th>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        <script type="text/javascript">
+            function getRowsColumn(){
+                let table = document.getElementById('1')
+                let tBody = table.querySelector('tbody')
+                const count = tBody.querySelectorAll('tr').length;
+                if (count === 0){
+                    alert("Документов по запросу найдено не было")
+                }
+                document.write('Найдено документов: ' + count)
+            }
+            getRowsColumn()
+
+            function toggle(){
+                var x = document.getElementById("hiddenblock");
+
+                if(x.style.display === "none"){
+                    x.style.display = "block";
+                }
+                else{
+                    x.style.display = "none";
+                }
+            }
+        </script>
+    </p>
+    <script type="text/javascript">
+        function clearSearch(){
+            window.location="[[@{http://localhost:8090/admin/}]]"
+        }
+    </script>
+</main>
+<br>
+
+</body>

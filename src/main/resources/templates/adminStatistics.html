@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Статистика</title>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+    rel="stylesheet">
+</head>
+<body>
+
+    <header style="background:#5cb85c">
+        <br>
+            <div>
+
+            <div style="display: inline-block; margin-left: 50px;">
+                <a href="http://localhost:8090/admin/" ><button class="btn btn-default">Все документы</button></a>
+            </div>
+
+            <div style="display: inline-block;">  
+                <a href="http://localhost:8090/admin/add/" ><button  class="btn btn-default">Добавить документ</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/copies/" ><button  class="btn btn-default">Запросы</button></a>
+            </div>
+            
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/originals/" ><button  class="btn btn-default">Выдача</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/returns/" ><button  class="btn btn-default">Возврат</button></a>
+            </div>
+                        
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/statistics/" ><button  class="btn btn-warning">Статистика</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/about" ><button  class="btn btn-default">Об авторе</button></a>
+            </div>
+            
+            <div style="display: inline-block;">
+                <form name="logoutForm" th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-danger">Выйти</button>
+                </form>
+            </div>
+        </div>
+        <br>
+      </header>
+      
+    <main style="margin-left: 50px; margin-right: 50px;">
+        <br>
+    
+
+    <button onclick="toggle('div1')" type="button" class="btn btn-success">По действиям</button>
+    <button onclick="toggle('div2')" type="button" class="btn btn-success">По отделам</button>
+
+    
+    <div id = "div1" style="margin-right: 1200px; text-align: center; display: none; ">
+        <br>
+        <table id="2" class="table table-striped" style="float:left">
+            <thead style="background-color: rgba(240,173,78,1);">
+            <tr >
+                <th scope="col">Действие</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr th:each="entry, stat: ${statsList}">
+                    <th scope="row" th:text="${entry.key}"></th>
+                    <th scope="row" th:text="${entry.value}"></th>
+                </tr>
+                
+            </tbody>
+        </table>
+    </div>
+
+    <div id = "div2" style="margin-right: 800px; text-align: center;  display: none; ">
+        <br>
+        <table id="3" class="table table-striped" style="float:left">
+            <thead style="background-color: rgba(240,173,78,1);">
+            <tr >
+                <th scope="col">Отдел</th>
+                <th scope="col">Документов</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr th:each="entry, stat: ${deptStatsList}">
+                    <th scope="row" th:text="${entry.key}"></th>
+                    <th scope="row" th:text="${entry.value}"></th>
+                </tr>
+                
+            </tbody>
+        </table>
+    </div>  
+
+
+
+    <br>
+
+    <br> 
+
+
+    <table id="1" class="table table-striped">
+        <thead style="background-color: rgba(240,173,78,1);">
+        <tr>
+            <th scope="col">Время</th>
+            <th scope="col">Документ</th>
+            <th scope="col">Сотрудник</th>
+            <th scope="col">Действие</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr th:each="action: ${actionList}">
+                <th scope="row" th:text="${action.actionDate}"></th>
+                <th scope="row" th:text="${action.docName}"></th>
+                <th scope="row" th:text="${action.employee.email}"></th>
+                <th scope="row" th:text="${action.actionStatus.name}"></th>
+                
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        <script type="text/javascript">
+            function getRowsColumn(){
+                let table = document.getElementById('1')
+                let tBody = table.querySelector('tbody')
+                const count = tBody.querySelectorAll('tr').length;
+                document.write('Записей в журнале: ' + count)
+            }
+            getRowsColumn()
+
+            function toggle(name){
+                var x = document.getElementById(name);
+
+                if(x.style.display === "none"){
+                    x.style.display = "block";
+                }
+                else{
+                    x.style.display = "none";
+                }
+            }
+        </script>
+    </p>
+
+
+    <script type="text/javascript">
+        function clearSearch(){
+            window.location="[[@{http://localhost:8090/admin/statistics/}]]"
+        }
+    </script>
+</main>
+<br>
+
+</body>

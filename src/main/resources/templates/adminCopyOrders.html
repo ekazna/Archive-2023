@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Запросы копий</title>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+    rel="stylesheet">
+</head>
+<body>
+
+    <header style="background: #428bca;">
+        <br>
+            <div>
+
+            <div style="display: inline-block; margin-left: 50px;">
+                <a href="http://localhost:8090/admin/" ><button class="btn btn-default">Все документы</button></a>
+            </div>
+
+            <div style="display: inline-block;">  
+                <a href="http://localhost:8090/admin/add/" ><button  class="btn btn-default">Добавить документ</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/copies/" ><button  class="btn btn-warning">Запросы</button></a>
+            </div>
+            
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/originals/" ><button  class="btn btn-default">Выдача</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/returns/" ><button  class="btn btn-default">Возврат</button></a>
+            </div>
+                        
+            <div style="display: inline-block;"><a href="http://localhost:8090/admin/statistics/" >
+                <button  class="btn btn-default">Статистика</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/about" ><button  class="btn btn-default">Об авторе</button></a>
+            </div>
+            
+            <div style="display: inline-block;">
+                <form name="logoutForm" th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-danger">Выйти</button>
+                </form>
+            </div>
+        </div>
+        <br>
+      </header>
+
+    
+    <main style="margin-left: 50px;margin-right: 50px;">
+    <br>
+    <div class="row" id = "sortingblock">
+        <div class="col-md-8 offset-md-4">
+            <form th:action="@{http://localhost:8090/admin/copies/}" th:object="${orderSorting}">
+
+        
+        <label for="dropDownListSorting">Сортировать по:</label><br>
+        <select class="form-control" id="dropDownListSorting" th:field="*{sortType}">
+            <option value="">--Select option--</option>
+            <option th:value="employeeEmail" th:text="Сотруднику"></option>
+            <option th:value="docName" th:text="Названию"></option>
+            <option th:value="docFolder" th:text="Папке"></option>
+            <option th:value="orderDate" th:text="Дате"></option>
+        </select>
+        
+        <br>
+
+        <input type="submit" class="btn btn-success btn"  value="Сортировать"/>
+        <input type="button" class="btn btn-warning btn" value="Очистить" id="btnClean" onclick="clearSearch()"/>
+    </form> 
+    </div>
+    </div>
+
+
+    <br> <br> 
+   
+    <table id="1" class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Документ</th>
+            <th scope="col">Дата заказа</th>
+            <th scope="col">Email сотрудника</th>
+            <th scope="col">Папка</th>
+            <th scope="col">В наличии</th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr th:each="order: ${orderList}">
+                <th scope="row" th:text="${order.doc.name}"></th>
+                <th scope="row" th:text="${order.orderDate}"></th>
+                <th scope="row" th:text="${order.employee.email}"></th>
+                <th scope="row" th:text="${order.doc.folder}"></th>
+                <th scope="row" th:text="${order.doc.present}"></th>
+                <th>
+                    <form th:action="@{'/admin/copies/{id}'(id=${order.id})}" th:method ='post'>
+                    <input type="hidden" name="_method" value="delete"/>
+                    <button type="submit" class="btn btn-primary">Выполнить</button>
+                    </form>
+                </th>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        <script type="text/javascript">
+            function getRowsColumn(){
+                let table = document.getElementById('1')
+                let tBody = table.querySelector('tbody')
+                const count = tBody.querySelectorAll('tr').length;
+                document.write('Найдено заказов: ' + count)
+            }
+            getRowsColumn()
+
+        </script>
+    </p>
+    <script type="text/javascript">
+        function clearSearch(){
+            window.location="[[@{http://localhost:8090/admin/copies/}]]"
+        }
+    </script>
+</main>
+<br>
+
+
+</body>

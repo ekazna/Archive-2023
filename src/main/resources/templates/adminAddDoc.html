@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавление документа</title>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+    rel="stylesheet">
+</head>
+<body>
+
+    <header style="background: #428bca;">
+        <br>
+            <div>
+
+            <div style="display: inline-block; margin-left: 50px;">
+                <a href="http://localhost:8090/admin/" ><button class="btn btn-default">Все документы</button></a>
+            </div>
+
+            <div style="display: inline-block;">  
+                <a href="http://localhost:8090/admin/add/" ><button  class="btn btn-warning">Добавить документ</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/copies/" ><button  class="btn btn-default">Запросы</button></a>
+            </div>
+            
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/originals/" ><button  class="btn btn-default">Выдача</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/returns/" ><button  class="btn btn-default">Возврат</button></a>
+            </div>
+                        
+            <div style="display: inline-block;"><a href="http://localhost:8090/admin/statistics/" >
+                <button  class="btn btn-default">Статистика</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/about" ><button  class="btn btn-default">Об авторе</button></a>
+            </div>
+            
+            <div style="display: inline-block;">
+                <form name="logoutForm" th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-danger">Выйти</button>
+                </form>
+            </div>
+        </div>
+        <br>
+      </header>
+      
+
+    <main style="margin-left: 50px;margin-right: 50px;">
+        <div class="row">
+        <div class="col-md-8 offset-md-4">
+        
+        <br>
+        
+        <form th:action="@{http://localhost:8090/admin/add/save/}" th:object="${doc}" method="post">
+
+            
+        <label for="nameInput">Название документа:</label><br>
+        <input type="text" name="name" id="nameInput" size = 125 th:value="*{name}" required/><br><br>
+
+        <label for="dropDownListDocTypes">Тип документа:</label><br>
+        <select class="form-control" id="dropDownListDocTypes" th:field="*{docType.id}" required>
+            <option th:each="docType : ${listDocTypes}" th:value="${docType.id}" th:text="${docType.name}"></option>
+        </select>
+        <br>
+
+        <label for="dropDownListDeps">Департамент:</label><br>
+        <select class="form-control"  id="dropDownListDeps" th:field="*{department.id}" required>
+            <option th:each="department : ${listDepts}" th:value="${department.id}" th:text="${department.name}"></option>
+        </select>
+        <br> 
+
+        <label for="dropDownListEmployees">Сотрудник, передавший документ в архив:</label><br>
+        <select class="form-control" id="dropDownListEmployees" th:field="*{fromEmployee.id}" required>
+            <option th:each="emp : ${listEmployees}" th:value="${emp.id}" th:text="${emp.lastName}  + ' ' + ${emp.firstName} + '   ' + ${emp.email}"></option>
+        </select>
+        <br>
+       
+        <label for="dropDownListClients">Клиент (если есть):</label><br>
+        <select class="form-control" id="dropDownListClients" th:field="*{client.id}">
+            <option value="">----Нет----</option>
+            <option th:each="client : ${listClients}" th:value="${client.id}" th:text="${client.name}"></option>
+        </select>
+        <br>
+
+        <label for="dropDownListEmployees2">Сотрудник, указанный в документе (если есть):</label><br>
+        <select class="form-control" id="dropDownListEmployees2" th:field="*{docEmployee.id}">
+            <option value="">----Нет----</option>
+            <option th:each="emp : ${listEmployees}" th:value="${emp.id}" th:text="${emp.lastName}  + ' ' + ${emp.firstName} + '   ' + ${emp.email}"></option>
+        </select>
+        <br>
+
+        <label for="accessLevel">Уровень доступа:</label><br>
+        <input type="number" min="1" step="1" pattern="\d+" name="accessLevel" id="accessLevel" size = 15  th:value="*{accessLevel}" required/><br><br>
+
+        
+        <label for="folder">Папка архива:</label><br>
+        <input type="text" name="folder" id="folder" size = 126 th:value="*{folder}" required/><br>
+
+        <br>
+        <label for="start">Дата на документе:</label><br>
+        <input type="date" id="start" name="doc_date" min="1900-01-01" max="2050-12-31" th:field="*{docDate}" required><br>
+
+       
+        <br>
+        <input type="submit" class="btn btn-success btn"  value="Добавить"/>
+        <input type="button" class="btn btn-warning btn" value="Очистить" id="btnClean" onclick="clearForm()"/>
+    </form> 
+    </div>
+    </div>
+    
+    <script type="text/javascript">
+        function clearForm(){
+            window.location="[[@{http://localhost:8090/admin/add/}]]"
+        }
+    </script>
+</main>
+<br> <br>
+
+
+</body>

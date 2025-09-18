@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Об авторе</title>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+    rel="stylesheet">
+  <style type="text/css">
+    h2 {
+      margin-top: 30px;
+      margin-bottom: 20px;
+    }
+    h4 {
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 18px;
+    }
+  </style>
+</head>
+
+
+
+<body>
+    <header style="background: rgba(240,173,78,1);">
+        <br>
+        <div>
+            <div style="display: inline-block; margin-left: 50px;">
+                <a href="http://localhost:8090/user/" ><button class="btn btn-default">Документы</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/about" ><button  class="btn btn-primary">Об авторе</button></a>
+            </div>
+    
+        
+            <div style="display: inline-block;">
+                <form name="logoutForm" th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-danger">Выйти</button>
+                </form>
+            </div>
+        </div>
+
+
+    <br>
+      </header>
+<br>
+<div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h2>Знаменская Екатерина</h2>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+<br> <br> 
+    <div class="row">
+      <div class="col-12">
+		<p> Студентка группы ПИ21-1в</p>
+		<p> Направление подготовки: Прикладная информатика</p>
+		<p> Факультет информационных технологий и анализа больших данных</p>
+        	<p> Финансовый университет при Правительстве Российской Федерации</p>
+     
+      </div>
+   
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h4><b>Контакты</b></h4>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <p>Телефон:  +7 (916) 679-45-40 </p>
+        <p>Почта: 215823@edu.fa.ru</p>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+	<head>
+        <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+    rel="stylesheet">
+		<title>Вход в систему</title>
+	</head>
+	<body style="margin-top: 10%;">
+		<h1 style="margin-left: 38%;">Вход в систему</h1>
+		<div style="margin-left: 40%;" th:if="${param.error}">
+			Неверный логин или пароль</div>
+		<div style="margin-left: 40%;" th:if="${param.logout}">
+			You have been logged out.</div>
+		<form style="margin-left: 40%;" th:action="@{/login}" method="post">
+			<div>
+			<br>
+			<input type="text" name="username" placeholder="Username"/>
+			</div>
+			<div>
+				<br>
+			<input type="password" name="password" placeholder="Password"/>
+			</div>
+			<br>
+			<button type="submit" value="Log in" class="btn btn-primary">Войти</button>
+		</form>
+	</body>
+</html>

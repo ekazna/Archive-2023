@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Работа с документами</title>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+    rel="stylesheet">
+</head>
+<body>
+
+    <header style="background: #428bca;">
+        <br>
+            <div>
+
+            <div style="display: inline-block; margin-left: 50px;">
+                <a href="http://localhost:8090/admin/" ><button class="btn btn-default">Все документы</button></a>
+            </div>
+
+            <div style="display: inline-block;">  
+                <a href="http://localhost:8090/admin/add/" ><button  class="btn btn-default">Добавить документ</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/copies/" ><button  class="btn btn-default">Запросы</button></a>
+            </div>
+            
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/originals/" ><button  class="btn btn-default">Выдача</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/returns/" ><button  class="btn btn-default">Возврат</button></a>
+            </div>
+                        
+            <div style="display: inline-block;"><a href="http://localhost:8090/admin/statistics/" >
+                <button  class="btn btn-default">Статистика</button></a>
+            </div>
+
+            <div style="display: inline-block;">
+                <a href="http://localhost:8090/admin/about" ><button  class="btn btn-default">Об авторе</button></a>
+            </div>
+            
+            <div style="display: inline-block;">
+                <form name="logoutForm" th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-danger">Выйти</button>
+                </form>
+            </div>
+        </div>
+        <br>
+      </header>
+      
+    <main style="margin-left: 50px;margin-right: 50px;">
+    
+    <br>
+
+    <button class="btn btn-danger">Документы на удаление</button></a>
+    
+    
+
+    <br> <br>
+    <table id="1" class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Документ</th>
+            <th scope="col">Дата</th>
+            <th scope="col">Дата удаления</th>
+            <th scope="col">Место</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr th:each="doc: ${listDocs}">
+                <th scope="row" th:text="${doc.name}"></th>
+                <th scope="row" th:text="${doc.docDate}"></th>
+                <th scope="row" th:text="${doc.deletionDate}"></th>
+                <th scope="row" th:text="${doc.folder}"></th>
+                <th>
+                    
+                    <a th:href="@{'/admin/edit/'+${doc.id}}"><button type="button" class="btn btn-primary">Редактировать</button></a>
+                </th>
+                <th>
+                    <form th:action="@{'/admin/expired/delete/{id}'(id=${doc.id})}" th:method ='post'>
+                    <input type="hidden" name="_method" value="delete"/>
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                    </form>
+                </th>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        <script type="text/javascript">
+            function getRowsColumn(){
+                let table = document.getElementById('1')
+                let tBody = table.querySelector('tbody')
+                const count = tBody.querySelectorAll('tr').length;
+                document.write('Найдено документов на удаление: ' + count)
+            }
+            getRowsColumn()
+
+    
+        </script>
+    
+</main>
+<br>
+
+</body>
