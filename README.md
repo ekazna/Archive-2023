@@ -12,12 +12,12 @@
 
 
 ## Стек 
-- **Java**  
-- **Spring Boot** (Security, Data JPA, Thymeleaf)  
-- **Maven**  
-- **Hibernate**
-- **Lombok**  
-- **PostgreSQL**
+- Java
+- Spring Boot (Security, Data JPA, Thymeleaf)  
+- Maven 
+- Hibernate
+- Lombok 
+- PostgreSQL
 
 ## Функционал
 - Разграничение доступа (администратор / пользователь)  
