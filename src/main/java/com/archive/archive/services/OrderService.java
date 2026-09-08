@@ -2,6 +2,7 @@ package com.archive.archive.services;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.archive.archive.exceptions.ResourceNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -114,12 +115,14 @@ public class OrderService {
 
     @Transactional
     public void updateType(Integer id){
-        Order order = orderRepo.findById(id).get();
+        Order order = orderRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", id));
         Doc doc = order.getDoc();
+
+
         doc.setPresent(false);
         order.setType(3);
-        docRepo.save(doc);
-        orderRepo.save(order);
+
 
         /////////////    doc actions  ADMIN  ///////////////
         docActionService.addActionInfo(5, doc.getId(), getCurrentUser());
@@ -133,10 +136,10 @@ public class OrderService {
 
     @Transactional
     public void returnOrder(Integer id){
-        Order order = orderRepo.findById(id).get();
+        Order order = orderRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", id));
         Doc doc = order.getDoc();
         doc.setPresent(true);
-        docRepo.save(doc);
 
         /////////////    doc actions   ADMIN  ///////////////
         docActionService.addActionInfo(6, doc.getId(), getCurrentUser());
