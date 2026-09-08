@@ -51,8 +51,11 @@ public class OrderService {
         Employee employee = getCurrentUser();
 
         Order order = new Order();
-        
-        order.setDoc(docRepo.findById(docId).get());
+
+        Doc doc = docRepo.findById(docId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Document", docId));
+        order.setDoc(doc);
+
         order.setEmployee(employee);
 
         order.setOrderDate(LocalDate.now());
@@ -102,7 +105,9 @@ public class OrderService {
     public void deleteCopyOrder(Integer id){
 
         /////////////    doc actions    ///////////////
-        Doc doc = orderRepo.findById(id).get().getDoc();
+        Order order = orderRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", id));
+        Doc doc = order.getDoc();
         docActionService.addActionInfo(4, doc.getId(), getCurrentUser());
         /////////////    doc actions    ///////////////
         

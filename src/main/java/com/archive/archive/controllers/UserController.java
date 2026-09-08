@@ -3,7 +3,6 @@ package com.archive.archive.controllers;
 import java.util.List;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,18 +29,28 @@ import com.archive.archive.services.OrderService;
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    @Autowired
-    DepartmentService departmentService;
-    @Autowired
-    ClientService clientService;
-    @Autowired 
-    DocService docService;
-    @Autowired
-    DocTypeService docTypeService;
-    @Autowired
-    EmployeeService employeeService;
-    @Autowired 
-    OrderService orderService;
+    private final DepartmentService departmentService;
+    private final ClientService clientService;
+    private final DocService docService;
+    private final DocTypeService docTypeService;
+    private final EmployeeService employeeService;
+    private final OrderService orderService;
+
+    public UserController(
+            DepartmentService departmentService,
+            ClientService clientService,
+            DocService docService,
+            DocTypeService docTypeService,
+            EmployeeService employeeService,
+            OrderService orderService
+    ) {
+        this.departmentService = departmentService;
+        this.clientService = clientService;
+        this.docService = docService;
+        this.docTypeService = docTypeService;
+        this.employeeService = employeeService;
+        this.orderService = orderService;
+    }
 
  
 

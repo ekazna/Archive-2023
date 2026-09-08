@@ -1,5 +1,6 @@
 package com.archive.archive.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -34,25 +35,18 @@ import com.archive.archive.services.DocTypeService;
 import com.archive.archive.services.EmployeeService;
 import com.archive.archive.services.OrderService;
 
-
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
 
-    @Autowired
-    DepartmentService departmentService;
-    @Autowired
-    ClientService clientService;
-    @Autowired 
-    DocService docService;
-    @Autowired
-    DocTypeService docTypeService;
-    @Autowired
-    EmployeeService employeeService;
-    @Autowired
-    OrderService orderService;
-    @Autowired 
-    DocActionService docActionService;
+    private final DepartmentService departmentService;
+    private final ClientService clientService;
+    private final DocService docService;
+    private final DocTypeService docTypeService;
+    private final EmployeeService employeeService;
+    private final OrderService orderService;
+    private final DocActionService docActionService;
     
     
     @GetMapping("/")

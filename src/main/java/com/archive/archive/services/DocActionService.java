@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 
+import com.archive.archive.exceptions.ResourceNotFoundException;
+import com.archive.archive.models.ActionStatus;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -58,12 +60,19 @@ public class DocActionService {
     public void addActionInfo(Integer statusId, Integer docId, Employee employee){
         DocAction docAction = new DocAction();
         docAction.setActionDate(LocalDateTime.now());
-        
-        docAction.setActionStatus(actionStatusRepo.findById(statusId).get());
+
+        ActionStatus actionStatus = actionStatusRepo.findById(statusId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Action status", statusId));
+
+        docAction.setActionStatus(actionStatus);
 
         docAction.setEmployee(employee);
 
-        Doc doc = docRepo.findById(docId).get();
+        Doc doc = docRepo.findById(docId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Document", docId));
+
         if (statusId == 3){
             docAction.setDocName(doc.getName());
         } else{
