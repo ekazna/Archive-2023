@@ -14,12 +14,11 @@ import com.archive.archive.models.OrderSorting;
 import com.archive.archive.repositories.DocRepo;
 import com.archive.archive.repositories.EmployeeRepo;
 import com.archive.archive.repositories.OrderRepo;
-
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class OrderService {
     @Autowired 
     OrderRepo orderRepo;
@@ -43,8 +42,9 @@ public class OrderService {
         Authentication authentication = authenticationFacade.getAuthentication();
         return employeeRepo.findByLogin(authentication.getName());
     }
-    
 
+
+    @Transactional
     public void orderDoc(Integer orderType, Integer docId){
 
         Employee employee = getCurrentUser();
@@ -97,6 +97,7 @@ public class OrderService {
     }
 
 
+    @Transactional
     public void deleteCopyOrder(Integer id){
 
         /////////////    doc actions    ///////////////
@@ -109,8 +110,9 @@ public class OrderService {
         orderRepo.deleteById(id);
     }
 
-    
 
+
+    @Transactional
     public void updateType(Integer id){
         Order order = orderRepo.findById(id).get();
         Doc doc = order.getDoc();
@@ -128,6 +130,8 @@ public class OrderService {
         
     }
 
+
+    @Transactional
     public void returnOrder(Integer id){
         Order order = orderRepo.findById(id).get();
         Doc doc = order.getDoc();

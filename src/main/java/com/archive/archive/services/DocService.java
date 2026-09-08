@@ -20,11 +20,10 @@ import com.archive.archive.repositories.DocRepo;
 import com.archive.archive.repositories.DocTypeRepo;
 import com.archive.archive.repositories.EmployeeRepo;
 
-import jakarta.transaction.Transactional;
-
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class DocService {
     private final DocRepo docRepo;
     private final DocTypeRepo docTypeRepo;
@@ -79,6 +78,7 @@ public class DocService {
     }
 
 
+    @Transactional
     public void save(Doc doc){
         doc.setDateAdded(LocalDate.now());
         if (doc.getClient().getId() == null){
@@ -105,6 +105,7 @@ public class DocService {
         /////////////    doc actions    ///////////////
     }
 
+    @Transactional
     public void delete(Integer id){
 
         /////////////    doc actions    ///////////////
@@ -121,6 +122,7 @@ public class DocService {
 
 
 
+    @Transactional
     public void update(Doc doc){
         
         if (doc.getClient().getId() == null){

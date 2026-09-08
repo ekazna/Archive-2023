@@ -12,11 +12,11 @@ import org.springframework.stereotype.Service;
 import com.archive.archive.models.Employee;
 import com.archive.archive.repositories.EmployeeRepo;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class EmployeeService implements UserDetailsService {
     @Autowired
     EmployeeRepo employeeRepo;

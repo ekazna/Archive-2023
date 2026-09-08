@@ -15,12 +15,11 @@ import com.archive.archive.repositories.ActionStatusRepo;
 import com.archive.archive.repositories.DocActionRepo;
 import com.archive.archive.repositories.DocRepo;
 import com.archive.archive.repositories.EmployeeRepo;
-
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class DocActionService {
     @Autowired
     DocActionRepo docActionRepo;
@@ -53,6 +52,7 @@ public class DocActionService {
     //////////////////////////////////////////////////////////////////////////
 
 
+    @Transactional
     public void addActionInfo(Integer statusId, Integer docId, Employee employee){
         DocAction docAction = new DocAction();
         docAction.setActionDate(LocalDateTime.now());

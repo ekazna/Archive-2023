@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 
 import com.archive.archive.models.Client;
 import com.archive.archive.repositories.ClientRepo;
+import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.transaction.Transactional;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class ClientService {
     private final ClientRepo clientRepo;
 

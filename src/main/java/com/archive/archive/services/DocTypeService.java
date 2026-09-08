@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 import com.archive.archive.models.DocType;
 import com.archive.archive.repositories.DocTypeRepo;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class DocTypeService {
 
     private final DocTypeRepo docTypeRepo;
