@@ -2,7 +2,6 @@ package com.archive.archive.services;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +13,11 @@ import jakarta.transaction.Transactional;
 @Service
 @Transactional
 public class DepartmentService {
-    @Autowired
-    DepartmentRepo departmentRepo;
+    private final DepartmentRepo departmentRepo;
+
+    public DepartmentService(DepartmentRepo departmentRepo){
+        this.departmentRepo = departmentRepo;
+    }
 
     public List<Department> getAll(){
         return departmentRepo.findAll();

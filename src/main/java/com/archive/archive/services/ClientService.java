@@ -2,7 +2,6 @@ package com.archive.archive.services;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +13,11 @@ import jakarta.transaction.Transactional;
 @Service
 @Transactional
 public class ClientService {
-    @Autowired
-    ClientRepo clientRepo;
+    private final ClientRepo clientRepo;
 
+    public ClientService(ClientRepo clientRepo){
+        this.clientRepo = clientRepo;
+    }
 
 
     public List<Client> getAll(){
