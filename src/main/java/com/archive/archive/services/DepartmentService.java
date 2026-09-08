@@ -2,6 +2,7 @@ package com.archive.archive.services;
 
 import java.util.List;
 
+import com.archive.archive.exceptions.ResourceNotFoundException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +28,9 @@ public class DepartmentService {
         return departmentRepo.findAll(Sort.by("name"));
     }
 
-    public Department findById(Integer id){
-        return departmentRepo.findById(id).get();
+    public Department findById(Integer id) {
+        return departmentRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Department", id));
     }
 
 }

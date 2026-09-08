@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 
+import com.archive.archive.exceptions.ResourceNotFoundException;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -88,7 +89,10 @@ public class DocService {
         }
         doc.setPresent(true);
 
-        DocType docType = docTypeRepo.findById(doc.getDocType().getId()).get();
+        Integer docTypeId = doc.getDocType().getId();
+        DocType docType = docTypeRepo.findById(docTypeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Document type", docTypeId));
+
         Integer storingTime = docType.getStoringTime();
 
         if (storingTime != null){
@@ -111,7 +115,8 @@ public class DocService {
     }
 
     public Doc getById(Integer id){
-        return docRepo.findById(id).get();
+        return docRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Document", id));
     }
 
 
@@ -126,7 +131,10 @@ public class DocService {
         }
 
         if (doc.getDeletionDate() == null){
-            DocType docType = docTypeRepo.findById(doc.getDocType().getId()).get();
+            Integer docTypeId = doc.getDocType().getId();
+            DocType docType = docTypeRepo.findById(docTypeId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Document type", docTypeId));
+
             Integer storingTime = docType.getStoringTime();
 
             if (storingTime != null){
