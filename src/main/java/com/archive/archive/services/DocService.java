@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ import com.archive.archive.models.DocType;
 import com.archive.archive.models.Employee;
 import com.archive.archive.models.TestModel;
 import com.archive.archive.models.TestModelSpecification;
-import com.archive.archive.repositories.DepartmentRepo;
 import com.archive.archive.repositories.DocRepo;
 import com.archive.archive.repositories.DocTypeRepo;
 import com.archive.archive.repositories.EmployeeRepo;
@@ -27,25 +25,26 @@ import jakarta.transaction.Transactional;
 @Service
 @Transactional
 public class DocService {
-    @Autowired
-    DocRepo docRepo;
+    private final DocRepo docRepo;
+    private final DocTypeRepo docTypeRepo;
+    private final EmployeeRepo employeeRepo;
+    private final DocActionService docActionService;
+    private final IAuthenticationFacade authenticationFacade;
 
-    @Autowired
-    DepartmentRepo departmentRepo;
 
-    @Autowired
-    DocTypeRepo docTypeRepo;
-
-    @Autowired
-    EmployeeRepo employeeRepo;
-
-    /////////////    doc actions    ///////////////
-    @Autowired 
-    DocActionService docActionService; 
-    /////////////    doc actions    ///////////////
-
-    @Autowired
-    private IAuthenticationFacade authenticationFacade;
+    public DocService(
+            DocRepo docRepo,
+            DocTypeRepo docTypeRepo,
+            EmployeeRepo employeeRepo,
+            DocActionService docActionService,
+            IAuthenticationFacade authenticationFacade
+    ) {
+        this.docRepo = docRepo;
+        this.docTypeRepo = docTypeRepo;
+        this.employeeRepo = employeeRepo;
+        this.docActionService = docActionService;
+        this.authenticationFacade = authenticationFacade;
+    }
 
 
     public Employee getCurrentUser(){
