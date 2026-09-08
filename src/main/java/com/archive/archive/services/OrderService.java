@@ -2,7 +2,6 @@ package com.archive.archive.services;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -20,22 +19,23 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class OrderService {
-    @Autowired 
-    OrderRepo orderRepo;
+    private final OrderRepo orderRepo;
+    private final EmployeeRepo employeeRepo;
+    private final DocRepo docRepo;
+    private final DocActionService docActionService;
+    private final  IAuthenticationFacade authenticationFacade;
 
-    @Autowired
-    EmployeeRepo employeeRepo;
-
-    @Autowired
-    DocRepo docRepo;
-
-    /////////////    doc actions    ///////////////
-    @Autowired 
-    DocActionService docActionService;
-    /////////////    doc actions    ///////////////
-
-    @Autowired
-    private IAuthenticationFacade authenticationFacade;
+    public OrderService(OrderRepo orderRepo,
+                        EmployeeRepo employeeRepo,
+                        DocRepo docRepo,
+                        DocActionService docActionService,
+                        IAuthenticationFacade authenticationFacade){
+        this.orderRepo = orderRepo;
+        this.employeeRepo = employeeRepo;
+        this.docRepo = docRepo;
+        this.docActionService = docActionService;
+        this.authenticationFacade = authenticationFacade;
+    }
 
 
     public Employee getCurrentUser(){

@@ -2,7 +2,6 @@ package com.archive.archive.services;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,8 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class EmployeeService implements UserDetailsService {
-    @Autowired
-    EmployeeRepo employeeRepo;
+    private final EmployeeRepo employeeRepo;
+
+    public EmployeeService(EmployeeRepo employeeRepo){
+        this.employeeRepo = employeeRepo;
+    }
 
     public List<Employee> getAll(){
         return employeeRepo.findAll();

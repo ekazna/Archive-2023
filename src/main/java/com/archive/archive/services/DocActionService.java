@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -21,17 +20,20 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class DocActionService {
-    @Autowired
-    DocActionRepo docActionRepo;
+    private final DocActionRepo docActionRepo;
+    private final ActionStatusRepo actionStatusRepo;
+    private final EmployeeRepo employeeRepo;
+    private final DocRepo docRepo;
 
-    @Autowired
-    ActionStatusRepo actionStatusRepo;
-
-    @Autowired
-    EmployeeRepo employeeRepo;
-
-    @Autowired
-    DocRepo docRepo;
+    public DocActionService(DocActionRepo docActionRepo,
+                            ActionStatusRepo actionStatusRepo,
+                            EmployeeRepo employeeRepo,
+                            DocRepo docRepo){
+        this.docActionRepo = docActionRepo;
+        this.actionStatusRepo = actionStatusRepo;
+        this.employeeRepo = employeeRepo;
+        this.docRepo = docRepo;
+    }
 
 
     public List<DocAction> getAll(){
