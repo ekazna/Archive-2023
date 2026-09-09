@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.http.HttpMethod;
 
 import com.archive.archive.services.EmployeeService;
 
@@ -23,25 +24,55 @@ public class WebSecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         return http
-            .authorizeHttpRequests((authz) -> authz
-                .requestMatchers("/admin/**").hasAnyRole("ADMIN")
-                .requestMatchers("/user/**").hasAnyRole("USER")
-                .anyRequest().authenticated()
-            )
-            .userDetailsService(employeeService)
-            .headers(headers -> headers.frameOptions().sameOrigin())
-            .formLogin(login -> login
-                .loginPage("/login")
-			    .permitAll()
-                .defaultSuccessUrl("/default",true)
-            )
-            .logout(logout -> logout
-                .logoutUrl("/logout")
-                .permitAll()
-                .logoutSuccessUrl("/login")
-                .invalidateHttpSession(true)
-            )
-            .build();
+                .authorizeHttpRequests(authz -> authz
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/documents"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/v1/documents/**"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/v1/documents/**"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/documents/**"
+                        ).hasAnyRole("USER", "ADMIN")
+
+                        .requestMatchers("/admin/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers("/user/**")
+                        .hasRole("USER")
+
+                        .anyRequest()
+                        .authenticated()
+                )
+                .userDetailsService(employeeService)
+                .headers(headers ->
+                        headers.frameOptions(frame ->
+                                frame.sameOrigin()
+                        )
+                )
+                .formLogin(login -> login
+                        .loginPage("/login")
+                        .permitAll()
+                        .defaultSuccessUrl("/default", true)
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .permitAll()
+                        .logoutSuccessUrl("/login")
+                        .invalidateHttpSession(true)
+                )
+                .build();
     }
 
     @Bean

@@ -1,18 +1,23 @@
 package com.archive.archive.services;
 
-
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 
+import com.archive.archive.dto.CreateDocumentRequest;
+import com.archive.archive.dto.DocumentFilter;
 import com.archive.archive.dto.UpdateDocumentRequest;
 import com.archive.archive.exceptions.ResourceNotFoundException;
 import com.archive.archive.models.*;
+import com.archive.archive.models.*;
 import com.archive.archive.repositories.*;
+import com.archive.archive.repositories.specification.DocumentSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.archive.archive.config.IAuthenticationFacade;
@@ -60,10 +65,17 @@ public class DocService {
         return docRepo.findAll();
     }
 
-    public Page<Doc> getAll(Pageable pageable){
-        return docRepo.findAll(pageable);
+
+    public Page<Doc> getAll(DocumentFilter filter, Pageable pageable){
+
+        Specification<Doc> specification = DocumentSpecification.withFilter(filter)
+                .and(DocumentSpecification.isActive())
+                .and(accessibleToCurrentUser());
+
+        return docRepo.findAll(specification, pageable);
     }
-        
+
+    @Deprecated
     public List<Doc> getFilteredSpecification(TestModel testModel){
         Employee emp = getCurrentUser();
         Integer deptId = emp.getDepartment().getId();
@@ -84,7 +96,74 @@ public class DocService {
         
     }
 
+    @Transactional
+    public Doc create(CreateDocumentRequest request){
 
+        validateAccessLevel(request.accessLevel());
+
+        DocType docType = docTypeRepo.findById(request.docTypeId())
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Document type", request.docTypeId())
+                );
+        Department department = departmentRepo.findById(request.departmentId())
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Department", request.departmentId())
+                );
+        Employee fromEmployee = employeeRepo.findById(request.fromEmployeeId())
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Employee", request.fromEmployeeId())
+                );
+
+        Client client = null;
+        if(request.clientId() != null){
+            client = clientRepo.findById(request.clientId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Client", request.clientId()));
+        }
+        Employee docEmployee = null;
+
+        if (request.docEmployeeId() != null) {
+            docEmployee = employeeRepo.findById(request.docEmployeeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Employee", request.docEmployeeId()));
+        }
+
+
+        Doc doc = new Doc();
+
+        doc.setName(request.name());
+        doc.setFolder(request.folder());
+        doc.setDocDate(request.docDate());
+        doc.setAccessLevel(request.accessLevel());
+
+        doc.setDocType(docType);
+        doc.setDepartment(department);
+        doc.setFromEmployee(fromEmployee);
+        doc.setClient(client);
+        doc.setDocEmployee(docEmployee);
+
+        doc.setPresent(true);
+        doc.setDateAdded(LocalDate.now());
+        doc.setStatus(DocumentStatus.ACTIVE);
+
+        LocalDate deletionDate = request.deletionDate();
+
+        if (deletionDate == null && docType.getStoringTime() != null){
+            deletionDate = request.docDate().plusYears(docType.getStoringTime());
+        }
+
+        doc.setDeletionDate(deletionDate);
+
+        docActionService.addActionInfo(
+                1,
+                doc.getId(),
+                getCurrentUser()
+        );
+
+        return docRepo.save(doc); // нужен т.к. Doc doc = new Doc() новый transient object
+
+    }
+
+
+    @Deprecated
     @Transactional
     public void save(Doc doc){
         doc.setDateAdded(LocalDate.now());
@@ -112,6 +191,16 @@ public class DocService {
         /////////////    doc actions    ///////////////
     }
 
+
+
+    @Transactional
+    public void dispose(Integer id){
+        Doc doc = getById(id);
+
+        doc.setStatus(DocumentStatus.DISPOSED);
+    }
+
+    @Deprecated
     @Transactional
     public void delete(Integer id){
 
@@ -122,71 +211,67 @@ public class DocService {
         docRepo.deleteById(id);
     }
 
-    public Doc getById(Integer id){
-        return docRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Document", id));
-    }
+
 
 
 
     @Transactional
-    public void update(Integer id, UpdateDocumentRequest request){
+    public Doc update(Integer id, UpdateDocumentRequest request){
 
-        Doc doc = docRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Document", id));
+        Doc doc = getById(id);
 
-        doc.setName(request.getName());
-        doc.setFolder(request.getFolder());
-        doc.setDocDate(request.getDocDate());
-        doc.setAccessLevel(request.getAccessLevel());
+        validateAccessLevel(request.accessLevel());
 
-        Integer docTypeId = request.getDocTypeId();
-        DocType docType = docTypeRepo.findById(docTypeId)
+        DocType docType = docTypeRepo.findById(request.docTypeId())
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Document type", docTypeId));
+                        new ResourceNotFoundException("Document type", request.docTypeId()));
+
+        Department department = departmentRepo.findById(request.departmentId())
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException("Department", request.departmentId()));
+
+        Employee fromEmployee = employeeRepo.findById(request.fromEmployeeId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Employee", request.fromEmployeeId()));
+
+        Client client = null;
+        if (request.clientId() != null) {
+            client = clientRepo.findById(request.clientId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Client", request.clientId()));
+        }
+
+        Employee docEmployee = null;
+        if (request.docEmployeeId() != null) {
+            docEmployee = employeeRepo.findById(request.docEmployeeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Employee", request.docEmployeeId()));
+        }
+
+        doc.setName(request.name());
+        doc.setFolder(request.folder());
+        doc.setDocDate(request.docDate());
+        doc.setAccessLevel(request.accessLevel());
+
         doc.setDocType(docType);
-
-        Integer departmentId = request.getDepartmentId();
-        Department department = departmentRepo.findById(departmentId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Department", departmentId));
         doc.setDepartment(department);
-
-        Integer fromEmployeeId = request.getFromEmployeeId();
-        Employee fromEmployee = employeeRepo.findById(fromEmployeeId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Employee", fromEmployeeId));
         doc.setFromEmployee(fromEmployee);
+        doc.setClient(client);
+        doc.setDocEmployee(docEmployee);
 
+        LocalDate deletionDate = request.deletionDate();
 
-        if (request.getClientId() == null){
-            doc.setClient(null);
-        }else{
-            Integer clientId = request.getClientId();
-            Client client = clientRepo.findById(clientId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Client", clientId));
-            doc.setClient(client);
-        }
-
-        if (request.getDocEmployeeId() == null) {
-            doc.setDocEmployee(null);
-        } else {
-            Integer employeeId = request.getDocEmployeeId();
-            Employee employee = employeeRepo.findById(employeeId)
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException("Employee", employeeId));
-            doc.setDocEmployee(employee);
-        }
-
-        LocalDate deletionDate = request.getDeletionDate();
         if (deletionDate == null && docType.getStoringTime() != null) {
-            deletionDate = request.getDocDate()
-                    .plusYears(docType.getStoringTime());
+            deletionDate =
+                    request.docDate().plusYears(docType.getStoringTime());
         }
+
         doc.setDeletionDate(deletionDate);
 
+        docActionService.addActionInfo(
+                2,
+                doc.getId(),
+                getCurrentUser()
+        );
 
-        docActionService.addActionInfo(2, doc.getId(), getCurrentUser());
+        return doc;
     }
 
 
@@ -213,5 +298,33 @@ public class DocService {
     }
 
     //////////////////////////////////////////////////////////////////////////
+
+
+    private Specification<Doc> accessibleToCurrentUser() {
+        Employee currentUser = getCurrentUser();
+
+        return DocumentSpecification.accessibleTo(
+                currentUser.getAccessLevel()
+        );
+    }
+
+    public Doc getById(Integer id){
+
+        Specification<Doc> specification =
+                DocumentSpecification.hasId(id)
+                        .and(DocumentSpecification.isActive())
+                        .and(accessibleToCurrentUser());
+        return docRepo.findOne(specification)
+                .orElseThrow(() -> new ResourceNotFoundException("Document", id));
+    }
+
+    public void validateAccessLevel(Integer requestedAccessLevel){
+        Employee currentUser = getCurrentUser();
+
+        if (requestedAccessLevel > currentUser.getAccessLevel()){
+            throw new AccessDeniedException("Вы не можете получить доступ к документу с этим Access Level");
+        }
+
+    }
 
 }

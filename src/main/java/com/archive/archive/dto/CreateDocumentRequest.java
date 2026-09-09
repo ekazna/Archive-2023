@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
-public record UpdateDocumentRequest(
+public record CreateDocumentRequest(
 
         @NotBlank
         String name,

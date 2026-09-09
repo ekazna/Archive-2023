@@ -4,21 +4,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
@@ -68,16 +60,17 @@ public class Employee implements UserDetails{
     @OneToMany(mappedBy = "employee")
     List<Order> orders; 
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private Role role;
+
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> list = new ArrayList<GrantedAuthority>();
-        if (this.department.getId() == 13){
-            list.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        } else{
-            list.add(new SimpleGrantedAuthority("ROLE_USER"));
-        }
-        return list;
+    public Collection<? extends GrantedAuthority> getAuthorities(){
+        return List.of(
+                new SimpleGrantedAuthority("ROLE_" + role.name())
+        );
     }
+
 
     @Override
     public String getUsername() {
