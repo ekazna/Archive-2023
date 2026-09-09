@@ -1,5 +1,7 @@
 package com.archive.archive.controllers;
 
+import com.archive.archive.dto.UpdateDocumentRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -116,8 +118,8 @@ public class AdminController {
     @PutMapping("/edit/{id}/updating/")
     public ModelAndView updateDoc(
             @PathVariable Integer id,
-            @ModelAttribute Doc doc){
-        docService.update(id, doc);
+            @Valid @ModelAttribute UpdateDocumentRequest request){
+        docService.update(id, request);
         return new ModelAndView("redirect:/admin/");
     }
 
