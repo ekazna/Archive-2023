@@ -9,6 +9,8 @@ import com.archive.archive.dto.UpdateDocumentRequest;
 import com.archive.archive.exceptions.ResourceNotFoundException;
 import com.archive.archive.models.*;
 import com.archive.archive.repositories.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -56,7 +58,11 @@ public class DocService {
     
     public List<Doc> getAll(){
         return docRepo.findAll();
-    }     
+    }
+
+    public Page<Doc> getAll(Pageable pageable){
+        return docRepo.findAll(pageable);
+    }
         
     public List<Doc> getFilteredSpecification(TestModel testModel){
         Employee emp = getCurrentUser();
