@@ -114,8 +114,10 @@ public class AdminController {
     }
 
     @PutMapping("/edit/{id}/updating/")
-    public ModelAndView updateDoc(@PathVariable Integer id, Model model, @ModelAttribute Doc doc){
-        docService.update(doc);
+    public ModelAndView updateDoc(
+            @PathVariable Integer id,
+            @ModelAttribute Doc doc){
+        docService.update(id, doc);
         return new ModelAndView("redirect:/admin/");
     }
 

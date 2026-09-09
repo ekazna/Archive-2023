@@ -6,19 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.archive.archive.exceptions.ResourceNotFoundException;
+import com.archive.archive.models.*;
+import com.archive.archive.repositories.*;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.archive.archive.config.IAuthenticationFacade;
-import com.archive.archive.models.Doc;
-import com.archive.archive.models.DocType;
-import com.archive.archive.models.Employee;
-import com.archive.archive.models.TestModel;
-import com.archive.archive.models.TestModelSpecification;
-import com.archive.archive.repositories.DocRepo;
-import com.archive.archive.repositories.DocTypeRepo;
-import com.archive.archive.repositories.EmployeeRepo;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +24,8 @@ public class DocService {
     private final EmployeeRepo employeeRepo;
     private final DocActionService docActionService;
     private final IAuthenticationFacade authenticationFacade;
+    private final DepartmentRepo departmentRepo;
+    private final ClientRepo clientRepo;
 
 
     public DocService(
@@ -37,13 +33,17 @@ public class DocService {
             DocTypeRepo docTypeRepo,
             EmployeeRepo employeeRepo,
             DocActionService docActionService,
-            IAuthenticationFacade authenticationFacade
+            IAuthenticationFacade authenticationFacade,
+            DepartmentRepo departmentRepo,
+            ClientRepo clientRepo
     ) {
         this.docRepo = docRepo;
         this.docTypeRepo = docTypeRepo;
         this.employeeRepo = employeeRepo;
         this.docActionService = docActionService;
         this.authenticationFacade = authenticationFacade;
+        this.departmentRepo = departmentRepo;
+        this.clientRepo = clientRepo;
     }
 
 
@@ -123,30 +123,62 @@ public class DocService {
 
 
     @Transactional
-    public void update(Doc doc){
-        
-        if (doc.getClient().getId() == null){
+    public void update(Integer id, Doc changes){
+
+        Doc doc = docRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Document", id));
+
+        doc.setName(changes.getName());
+        doc.setFolder(changes.getFolder());
+        doc.setDocDate(changes.getDocDate());
+        doc.setAccessLevel(changes.getAccessLevel());
+
+        Integer docTypeId = changes.getDocType().getId();
+        DocType docType = docTypeRepo.findById(docTypeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Document type", docTypeId));
+        doc.setDocType(docType);
+
+        Integer departmentId = changes.getDepartment().getId();
+        Department department = departmentRepo.findById(departmentId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Department", departmentId));
+        doc.setDepartment(department);
+
+        Integer fromEmployeeId = changes.getFromEmployee().getId();
+        Employee fromEmployee = employeeRepo.findById(fromEmployeeId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Employee", fromEmployeeId));
+        doc.setFromEmployee(fromEmployee);
+
+
+        if (changes.getClient() == null || changes.getClient().getId() == null){
             doc.setClient(null);
+        }else{
+            Integer clientId = changes.getClient().getId();
+            Client client = clientRepo.findById(clientId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Client", clientId));
+            doc.setClient(client);
         }
-        if (doc.getDocEmployee().getId() == null){
+
+        if (changes.getDocEmployee() == null || changes.getDocEmployee().getId() == null) {
             doc.setDocEmployee(null);
+        } else {
+            Integer employeeId = changes.getDocEmployee().getId();
+            Employee employee = employeeRepo.findById(employeeId)
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException("Employee", employeeId));
+            doc.setDocEmployee(employee);
         }
 
-        if (doc.getDeletionDate() == null){
-            Integer docTypeId = doc.getDocType().getId();
-            DocType docType = docTypeRepo.findById(docTypeId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Document type", docTypeId));
+        LocalDate deletionDate = changes.getDeletionDate();
+        if (deletionDate == null && docType.getStoringTime() != null) {
+            deletionDate = changes.getDocDate()
+                    .plusYears(docType.getStoringTime());
+        }
+        doc.setDeletionDate(deletionDate);
 
-            Integer storingTime = docType.getStoringTime();
 
-            if (storingTime != null){
-                doc.setDeletionDate(doc.getDocDate().plusYears(storingTime));}
-            }
-
-        docRepo.save(doc);  
-        /////////////    doc actions    ///////////////
         docActionService.addActionInfo(2, doc.getId(), getCurrentUser());
-        /////////////    doc actions    ///////////////
     }
 
 
