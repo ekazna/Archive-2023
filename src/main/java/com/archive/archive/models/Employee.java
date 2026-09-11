@@ -61,7 +61,7 @@ public class Employee implements UserDetails{
     List<Order> orders; 
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role")
+    @Column(name = "role", nullable = false)
     private Role role;
 
     @Override

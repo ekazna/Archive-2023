@@ -41,7 +41,7 @@ public class Doc {
     Integer accessLevel;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     private DocumentStatus status;
 
     @ManyToOne 

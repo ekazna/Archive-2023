@@ -3,6 +3,7 @@ package com.archive.archive.controllers;
 import java.util.List;
 
 
+import com.archive.archive.models.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,12 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 
-import com.archive.archive.models.Client;
-import com.archive.archive.models.Department;
-import com.archive.archive.models.Doc;
-import com.archive.archive.models.DocType;
-import com.archive.archive.models.Employee;
-import com.archive.archive.models.TestModel;
 import com.archive.archive.services.ClientService;
 import com.archive.archive.services.DepartmentService;
 import com.archive.archive.services.DocService;
@@ -72,14 +67,14 @@ public class UserController {
 
     @PostMapping("/orderCopy/{id}")
     public ModelAndView orderCopy(@PathVariable Integer id){
-        orderService.orderDoc(1, id);
+        orderService.createRequest(RequestType.COPY, id);
         return new ModelAndView("redirect:/user/");
     }
 
     
     @PostMapping("/orderOriginal/{id}")
     public ModelAndView orderOriginal(@PathVariable Integer id){
-        orderService.orderDoc(2, id);
+        orderService.createRequest(RequestType.ORIGINAL, id);
         return new ModelAndView("redirect:/user/");
     }
     

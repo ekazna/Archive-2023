@@ -5,13 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.archive.archive.exceptions.ResourceNotFoundException;
-import com.archive.archive.models.ActionStatus;
+import com.archive.archive.models.*;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import com.archive.archive.models.Doc;
-import com.archive.archive.models.DocAction;
-import com.archive.archive.models.Employee;
 import com.archive.archive.repositories.ActionStatusRepo;
 import com.archive.archive.repositories.DocActionRepo;
 import com.archive.archive.repositories.DocRepo;
@@ -57,13 +54,13 @@ public class DocActionService {
 
 
     @Transactional
-    public void addActionInfo(Integer statusId, Integer docId, Employee employee){
+    public void recordAction(DocumentActionType actionType, Integer docId, Employee employee){
         DocAction docAction = new DocAction();
         docAction.setActionDate(LocalDateTime.now());
 
-        ActionStatus actionStatus = actionStatusRepo.findById(statusId)
+        ActionStatus actionStatus = actionStatusRepo.findById(actionType.getStatusId())
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Action status", statusId));
+                        new ResourceNotFoundException("Action status", actionType.getStatusId()));
 
         docAction.setActionStatus(actionStatus);
 
@@ -73,14 +70,10 @@ public class DocActionService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Document", docId));
 
-        if (statusId == 3){
-            docAction.setDocName(doc.getName());
-        } else{
-            docAction.setDoc(doc);
-            docAction.setDocName(doc.getName());
-        }
+        docAction.setDoc(doc);
+        docAction.setDocName(doc.getName());
 
-        docActionRepo.save(docAction);                
+        docActionRepo.save(docAction);
         
     }
 }

@@ -9,7 +9,6 @@ import com.archive.archive.dto.DocumentFilter;
 import com.archive.archive.dto.UpdateDocumentRequest;
 import com.archive.archive.exceptions.ResourceNotFoundException;
 import com.archive.archive.models.*;
-import com.archive.archive.models.*;
 import com.archive.archive.repositories.*;
 import com.archive.archive.repositories.specification.DocumentSpecification;
 import org.springframework.data.domain.Page;
@@ -152,13 +151,15 @@ public class DocService {
 
         doc.setDeletionDate(deletionDate);
 
-        docActionService.addActionInfo(
-                1,
-                doc.getId(),
+        Doc savedDoc = docRepo.save(doc); // нужен т.к. Doc doc = new Doc() новый transient object
+
+        docActionService.recordAction(
+                DocumentActionType.ADDED,
+                savedDoc.getId(),
                 getCurrentUser()
         );
 
-        return docRepo.save(doc); // нужен т.к. Doc doc = new Doc() новый transient object
+        return savedDoc;
 
     }
 
@@ -186,31 +187,17 @@ public class DocService {
 
         docRepo.save(doc);
 
-        /////////////    doc actions    ///////////////
-        docActionService.addActionInfo(1, doc.getId(), getCurrentUser());
-        /////////////    doc actions    ///////////////
+
     }
-
-
 
     @Transactional
     public void dispose(Integer id){
         Doc doc = getById(id);
 
         doc.setStatus(DocumentStatus.DISPOSED);
+
+        docActionService.recordAction(DocumentActionType.DELETED, doc.getId(), getCurrentUser());
     }
-
-    @Deprecated
-    @Transactional
-    public void delete(Integer id){
-
-        /////////////    doc actions    ///////////////
-        docActionService.addActionInfo(3, id, getCurrentUser());
-        /////////////    doc actions    ///////////////
-
-        docRepo.deleteById(id);
-    }
-
 
 
 
@@ -265,8 +252,8 @@ public class DocService {
 
         doc.setDeletionDate(deletionDate);
 
-        docActionService.addActionInfo(
-                2,
+        docActionService.recordAction(
+                DocumentActionType.EDITED,
                 doc.getId(),
                 getCurrentUser()
         );

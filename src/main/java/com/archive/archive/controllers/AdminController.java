@@ -1,6 +1,7 @@
 package com.archive.archive.controllers;
 
 import com.archive.archive.dto.UpdateDocumentRequest;
+import com.archive.archive.models.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,22 +14,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import java.util.HashMap;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.archive.archive.models.Client;
-import com.archive.archive.models.Department;
-import com.archive.archive.models.Doc;
-import com.archive.archive.models.DocAction;
-import com.archive.archive.models.DocType;
-import com.archive.archive.models.Employee;
-import com.archive.archive.models.Order;
-import com.archive.archive.models.OrderSorting;
-import com.archive.archive.models.TestModel;
 import com.archive.archive.services.ClientService;
 import com.archive.archive.services.DepartmentService;
 import com.archive.archive.services.DocActionService;
@@ -91,7 +82,7 @@ public class AdminController {
 
     @DeleteMapping("/delete/{id}")
     public ModelAndView deleteDoc(@PathVariable Integer id){
-        docService.delete(id);
+        docService.dispose(id);
         return new ModelAndView("redirect:/admin/");
     }
 
@@ -127,7 +118,8 @@ public class AdminController {
 
     @GetMapping("/copies/")
     public ModelAndView seeCopyOrders(Model model, @Param("orderSorting") OrderSorting orderSorting){
-        List<Order> orderList= orderService.findByTypeAndSort(1, orderSorting);
+        List<Order> orderList = orderService.findByTypeAndStatusAndSort(
+                RequestType.COPY, RequestStatus.REQUESTED, orderSorting);
         model.addAttribute("orderList", orderList);
 
         return new ModelAndView("adminCopyOrders");
@@ -135,14 +127,15 @@ public class AdminController {
 
     @DeleteMapping("/copies/{id}")
     public ModelAndView copyOrderComplete(@PathVariable Integer id){
-        orderService.deleteCopyOrder(id);
+        orderService.completeCopyRequest(id);
         return new ModelAndView("redirect:/admin/copies/");
     }
 
 
     @GetMapping("/originals/")
     public ModelAndView seeOriginalOrders(Model model, @Param("orderSorting") OrderSorting orderSorting){
-        List<Order> orderList= orderService.findByTypeAndSort(2, orderSorting);
+        List<Order> orderList = orderService.findByTypeAndStatusAndSort(
+                RequestType.ORIGINAL, RequestStatus.REQUESTED, orderSorting );
         model.addAttribute(orderList);
 
         return new ModelAndView("adminOriginalOrders");
@@ -151,14 +144,15 @@ public class AdminController {
 
     @PutMapping("/originals/{id}")
     public ModelAndView issueOriginal(@PathVariable Integer id){
-        orderService.updateType(id);
+        orderService.issueOriginal(id);
         return new ModelAndView("redirect:/admin/originals/");
     }
 
 
     @GetMapping("/returns/")
     public ModelAndView returnOriginalOrders(Model model, @Param("orderSorting") OrderSorting orderSorting){
-        List<Order> orderList= orderService.findByTypeAndSort(3, orderSorting);
+        List<Order> orderList = orderService.findByTypeAndStatusAndSort(
+                RequestType.ORIGINAL, RequestStatus.ISSUED, orderSorting);
         model.addAttribute(orderList);
 
         return new ModelAndView("adminDocReturns");
@@ -166,7 +160,7 @@ public class AdminController {
 
     @DeleteMapping("/returns/{id}")
     public ModelAndView returnComplete(@PathVariable Integer id){
-        orderService.returnOrder(id);
+        orderService.returnOriginal(id);
         return new ModelAndView("redirect:/admin/returns/");
     }
 
@@ -195,7 +189,7 @@ public class AdminController {
 
     @DeleteMapping("/expired/delete/{id}")
     public ModelAndView deleteExpiredDoc(@PathVariable Integer id){
-        docService.delete(id);
+        docService.dispose(id);
         return new ModelAndView("redirect:/admin/expired/");
     }
 

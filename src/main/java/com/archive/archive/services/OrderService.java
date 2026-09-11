@@ -3,14 +3,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.archive.archive.exceptions.ResourceNotFoundException;
+import com.archive.archive.models.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.archive.archive.config.IAuthenticationFacade;
-import com.archive.archive.models.Doc;
-import com.archive.archive.models.Employee;
-import com.archive.archive.models.Order;
-import com.archive.archive.models.OrderSorting;
 import com.archive.archive.repositories.DocRepo;
 import com.archive.archive.repositories.EmployeeRepo;
 import com.archive.archive.repositories.OrderRepo;
@@ -22,136 +19,170 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderService {
     private final OrderRepo orderRepo;
     private final EmployeeRepo employeeRepo;
-    private final DocRepo docRepo;
+    private final DocService docService;
     private final DocActionService docActionService;
-    private final  IAuthenticationFacade authenticationFacade;
+    private final IAuthenticationFacade authenticationFacade;
 
     public OrderService(OrderRepo orderRepo,
                         EmployeeRepo employeeRepo,
-                        DocRepo docRepo,
+                        DocService docService,
                         DocActionService docActionService,
-                        IAuthenticationFacade authenticationFacade){
+                        IAuthenticationFacade authenticationFacade) {
         this.orderRepo = orderRepo;
         this.employeeRepo = employeeRepo;
-        this.docRepo = docRepo;
+        this.docService= docService;
         this.docActionService = docActionService;
         this.authenticationFacade = authenticationFacade;
     }
 
 
-    public Employee getCurrentUser(){
+    public Employee getCurrentUser() {
         Authentication authentication = authenticationFacade.getAuthentication();
         return employeeRepo.findByLogin(authentication.getName());
     }
 
 
     @Transactional
-    public void orderDoc(Integer orderType, Integer docId){
-
+    public void createRequest(RequestType requestType, Integer docId) {
         Employee employee = getCurrentUser();
 
-        Order order = new Order();
+        Doc doc = docService.getById(docId);
 
-        Doc doc = docRepo.findById(docId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Document", docId));
-        order.setDoc(doc);
+        Order request = new Order();
 
-        order.setEmployee(employee);
+        request.setDoc(doc);
+        request.setEmployee(employee);
+        request.setOrderDate(LocalDate.now());
 
-        order.setOrderDate(LocalDate.now());
-        order.setType(orderType);
-    
-        orderRepo.save(order);
+        request.setRequestType(requestType);
+        request.setRequestStatus(RequestStatus.REQUESTED);
 
-        /////////////    doc actions    ///////////////
-        if (orderType == 1) {
-            docActionService.addActionInfo(7, docId, employee);
-        } else{
-            docActionService.addActionInfo(8, docId, employee);
-        }
-        /////////////    doc actions    ///////////////
-        
-        
-    }
+        orderRepo.save(request);
 
-    public List<Order> findByType(Integer typeId){
-        return orderRepo.findByType(typeId);
-    }
-
-    public List<Order> findByTypeAndSort(Integer typeId, OrderSorting orderSorting){
-        String sortType = orderSorting.getSortType();
-        if (sortType!=null){
-            if (sortType.equals("employeeEmail")){
-                return orderRepo.findByTypeOrderByEmployee_Email(typeId);
-            }
-            if (sortType.equals("docName")){
-                return orderRepo.findByTypeOrderByDoc_Name(typeId);
-            }
-            if (sortType.equals("docFolder")){
-                return orderRepo.findByTypeOrderByDoc_Folder(typeId);
-            }
-            if (sortType.equals("orderDate")){
-                return orderRepo.findByTypeOrderByOrderDate(typeId);
-            } else {
-                return orderRepo.findByType(typeId);
-            }
+        if (requestType == RequestType.COPY) {
+            docActionService.recordAction(
+                    DocumentActionType.REQUESTED_COPY, docId, employee
+            );
         } else {
-            return orderRepo.findByType(typeId);
+            docActionService.recordAction(
+                    DocumentActionType.REQUESTED_ORIGINAL,
+                    docId, employee);
         }
     }
 
-
     @Transactional
-    public void deleteCopyOrder(Integer id){
+    public void issueOriginal(Integer id) {
 
-        /////////////    doc actions    ///////////////
-        Order order = orderRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Order", id));
-        Doc doc = order.getDoc();
-        docActionService.addActionInfo(4, doc.getId(), getCurrentUser());
-        /////////////    doc actions    ///////////////
-        
-        
+        Order request = orderRepo.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Request", id));
 
-        orderRepo.deleteById(id);
-    }
-
-
-
-    @Transactional
-    public void updateType(Integer id){
-        Order order = orderRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Order", id));
-        Doc doc = order.getDoc();
-
+        Doc doc = request.getDoc();
 
         doc.setPresent(false);
-        order.setType(3);
 
+        request.setRequestStatus(RequestStatus.ISSUED);
 
-        /////////////    doc actions  ADMIN  ///////////////
-        docActionService.addActionInfo(5, doc.getId(), getCurrentUser());
-        /////////////    doc actions  USER   ///////////////
-        docActionService.addActionInfo(9, doc.getId(), order.getEmployee());
-        /////////////    doc actions    ///////////////
-        
-        
+        docActionService.recordAction(
+                DocumentActionType.ISSUED_ORIGINAL,
+                doc.getId(),
+                getCurrentUser()
+        );
+
+        docActionService.recordAction(
+                DocumentActionType.TOOK_ORIGINAL,
+                doc.getId(),
+                request.getEmployee()
+        );
     }
-
 
     @Transactional
-    public void returnOrder(Integer id){
-        Order order = orderRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Order", id));
-        Doc doc = order.getDoc();
+    public void completeCopyRequest(Integer id) {
+
+        Order request = orderRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Request order", id));
+
+        request.setRequestStatus(RequestStatus.COMPLETED);
+
+        docActionService.recordAction(
+                DocumentActionType.SATISFIED_REQUEST, request.getDoc().getId(), getCurrentUser()
+        );
+    }
+
+    @Transactional
+    public void returnOriginal(Integer id) {
+
+        Order request = orderRepo.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Request", id));
+
+        Doc doc = request.getDoc();
+
         doc.setPresent(true);
 
-        /////////////    doc actions   ADMIN  ///////////////
-        docActionService.addActionInfo(6, doc.getId(), getCurrentUser());
-        /////////////    doc actions   USER   ///////////////
-        docActionService.addActionInfo(10, doc.getId(), order.getEmployee());
-        /////////////    doc actions    ///////////////
-        
-        orderRepo.deleteById(id);
+        request.setRequestStatus(RequestStatus.COMPLETED);
+
+        docActionService.recordAction(
+                DocumentActionType.ACCEPTED_ORIGINAL,
+                doc.getId(),
+                getCurrentUser()
+        );
+
+        docActionService.recordAction(
+                DocumentActionType.RETURNED_ORIGINAL,
+                doc.getId(),
+                request.getEmployee()
+        );
     }
-}
+
+
+
+
+    public List<Order> findByTypeAndStatusAndSort(
+            RequestType requestType,
+            RequestStatus requestStatus,
+            OrderSorting orderSorting
+    ) {
+        String sortType = orderSorting.getSortType();
+
+        if (sortType == null) {
+            return orderRepo.findByRequestTypeAndRequestStatus(
+                    requestType,
+                    requestStatus
+            );
+        }
+
+        if (sortType.equals("employeeEmail")) {
+            return orderRepo.findByRequestTypeAndRequestStatusOrderByEmployee_Email(
+                    requestType,
+                    requestStatus
+            );
+        }
+
+        if (sortType.equals("docName")) {
+            return orderRepo.findByRequestTypeAndRequestStatusOrderByDoc_Name(
+                    requestType,
+                    requestStatus
+            );
+        }
+
+        if (sortType.equals("docFolder")) {
+            return orderRepo.findByRequestTypeAndRequestStatusOrderByDoc_Folder(
+                    requestType,
+                    requestStatus
+            );
+        }
+
+        if (sortType.equals("orderDate")) {
+            return orderRepo.findByRequestTypeAndRequestStatusOrderByOrderDate(
+                    requestType,
+                    requestStatus
+            );
+        }
+
+        return orderRepo.findByRequestTypeAndRequestStatus(
+                requestType,
+                requestStatus
+        );
+    }
+    }

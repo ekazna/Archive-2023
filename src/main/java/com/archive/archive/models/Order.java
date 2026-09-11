@@ -2,14 +2,7 @@ package com.archive.archive.models;
 
 import java.time.LocalDate;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
@@ -21,17 +14,23 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.AUTO)
     Integer id;
 
-    @Column(name = "order_type")
-    Integer type;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "request_type", nullable = false)
+    private RequestType requestType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "request_status", nullable = false)
+    private RequestStatus requestStatus;
+
 
     @Column(name = "order_date")
     LocalDate orderDate;
 
-    @ManyToOne 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doc_id", nullable = false)
     Doc doc;
     
-    @ManyToOne 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "emp_id", nullable = false)
     Employee employee;
 
