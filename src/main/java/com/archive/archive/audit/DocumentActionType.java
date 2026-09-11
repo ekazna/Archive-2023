@@ -4,7 +4,7 @@ public enum DocumentActionType {
 
     ADDED(1),
     EDITED(2),
-    DELETED(3),
+    DISPOSED(3),
     SATISFIED_REQUEST(4),
     ISSUED_ORIGINAL(5),
     ACCEPTED_ORIGINAL(6),

@@ -1,8 +1,6 @@
 package com.archive.archive.document;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
 
 import com.archive.archive.audit.DocumentActionType;
 import com.archive.archive.document.dto.DocumentCreateRequest;
@@ -11,14 +9,11 @@ import com.archive.archive.document.dto.DocumentUpdateRequest;
 import com.archive.archive.employee.Employee;
 import com.archive.archive.employee.EmployeeRepo;
 import com.archive.archive.exceptions.ResourceNotFoundException;
-import com.archive.archive.legacy.filter.TestModel;
-import com.archive.archive.legacy.filter.TestModelSpecification;
 import com.archive.archive.reference.*;
 import com.archive.archive.security.CurrentUserService;
 import com.archive.archive.audit.DocActionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -56,12 +51,6 @@ public class DocService {
     }
 
 
-    
-    public List<Doc> getAll(){
-        return docRepo.findAll();
-    }
-
-
     public Page<Doc> getAll(DocumentFilter filter, Pageable pageable){
 
         Specification<Doc> specification = DocumentSpecification.withFilter(filter)
@@ -71,26 +60,6 @@ public class DocService {
         return docRepo.findAll(specification, pageable);
     }
 
-    @Deprecated
-    public List<Doc> getFilteredSpecification(TestModel testModel){
-        Employee emp = currentUserService.getCurrentEmployee();
-        Integer deptId = emp.getDepartment().getId();
-        if (deptId == 13){
-            testModel.setAccessLevel(10000);
-        } else{
-            Integer empAccessLevel = emp.getAccessLevel();
-            testModel.setAccessLevel(empAccessLevel);
-        }
-
-        if (testModel.getSortingType() == 0){
-            TestModelSpecification tspec = new TestModelSpecification(testModel);
-            return docRepo.findAll(tspec, Sort.by(Sort.Direction.ASC, testModel.getSortBy()));
-        }else{
-            TestModelSpecification tspec = new TestModelSpecification(testModel);
-            return docRepo.findAll(tspec, Sort.by(Sort.Direction.DESC, testModel.getSortBy()));
-        }
-        
-    }
 
     @Transactional
     public Doc create(DocumentCreateRequest request){
@@ -161,42 +130,14 @@ public class DocService {
     }
 
 
-    @Deprecated
-    @Transactional
-    public void save(Doc doc){
-        doc.setDateAdded(LocalDate.now());
-        if (doc.getClient().getId() == null){
-            doc.setClient(null);
-        }
-        if (doc.getDocEmployee().getId() == null){
-            doc.setDocEmployee(null);
-        }
-        doc.setPresent(true);
-
-        Integer docTypeId = doc.getDocType().getId();
-        DocType docType = docTypeRepo.findById(docTypeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Document type", docTypeId));
-
-        Integer storingTime = docType.getStoringTime();
-
-        if (storingTime != null){
-            doc.setDeletionDate(doc.getDocDate().plusYears(storingTime));        }
-
-        docRepo.save(doc);
-
-
-    }
-
     @Transactional
     public void dispose(Integer id){
         Doc doc = getById(id);
 
         doc.setStatus(DocumentStatus.DISPOSED);
 
-        docActionService.recordAction(DocumentActionType.DELETED, doc.getId(), currentUserService.getCurrentEmployee());
+        docActionService.recordAction(DocumentActionType.DISPOSED, doc.getId(), currentUserService.getCurrentEmployee());
     }
-
-
 
 
     @Transactional
@@ -259,39 +200,6 @@ public class DocService {
     }
 
 
-
-
-    public List<Doc> getDocsToDelete(){
-        LocalDate today = LocalDate.now();
-        return docRepo.getDocsToDelete(today);
-    }
-
-
-
-
-
-     //////////////////////////////////////////////////////////////////////////
-
-     public HashMap<String, Long> deptStatistics(){
-        List<Object[]> objList = docRepo.deptStatistics();
-        HashMap<String, Long> statsList = new HashMap<>();
-        for (Object[] obj : objList) {
-            statsList.put((String) obj[0], (Long) obj[1]);
-        }
-        return statsList;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-
-
-    private Specification<Doc> accessibleToCurrentUser() {
-        Employee currentUser = currentUserService.getCurrentEmployee();
-
-        return DocumentSpecification.accessibleTo(
-                currentUser.getAccessLevel()
-        );
-    }
-
     public Doc getById(Integer id){
 
         Specification<Doc> specification =
@@ -300,6 +208,25 @@ public class DocService {
                         .and(accessibleToCurrentUser());
         return docRepo.findOne(specification)
                 .orElseThrow(() -> new ResourceNotFoundException("Document", id));
+    }
+
+    public Page<Doc> getExpired(Pageable pageable) {
+
+        Specification<Doc> specification =
+                DocumentSpecification.expiredAsOf(LocalDate.now())
+                        .and(DocumentSpecification.isActive())
+                        .and(accessibleToCurrentUser());
+
+        return docRepo.findAll(specification, pageable);
+    }
+
+
+    private Specification<Doc> accessibleToCurrentUser() {
+        Employee currentUser = currentUserService.getCurrentEmployee();
+
+        return DocumentSpecification.accessibleTo(
+                currentUser.getAccessLevel()
+        );
     }
 
     public void validateAccessLevel(Integer requestedAccessLevel){

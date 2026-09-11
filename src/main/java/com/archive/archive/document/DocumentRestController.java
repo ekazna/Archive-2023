@@ -35,6 +35,12 @@ public class DocumentRestController {
         );
     }
 
+    @GetMapping("/expired")
+    public Page<DocumentResponse> getExpiredDocuments(Pageable pageable){
+        return docService
+                .getExpired(pageable)
+                .map(this::toResponse);
+    }
 
 
     @GetMapping("/{id}")
@@ -79,8 +85,11 @@ public class DocumentRestController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)   // 204 No content - Successful but NO Body
-    public void deleteDocument(@PathVariable Integer id){
+    @ResponseStatus(HttpStatus.NO_CONTENT)   // 204 No content - Successful but No body
+    public void disposeDocument(@PathVariable Integer id){
         docService.dispose(id);
     }
+
+
+
 }

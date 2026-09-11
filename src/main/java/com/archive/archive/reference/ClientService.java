@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -19,12 +18,7 @@ public class ClientService {
 
 
     public List<Client> getAll(){
-        return clientRepo.findAll();
-    }
-
-
-
-    public List<Client> getAllSortedAsc(){
         return clientRepo.findAll(Sort.by("name"));
     }
+
 }

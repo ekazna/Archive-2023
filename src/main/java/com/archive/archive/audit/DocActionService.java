@@ -1,7 +1,6 @@
 package com.archive.archive.audit;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 
 import com.archive.archive.document.Doc;
@@ -11,7 +10,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.archive.archive.document.DocRepo;
-import com.archive.archive.employee.EmployeeRepo;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -20,16 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class DocActionService {
     private final DocActionRepo docActionRepo;
     private final ActionStatusRepo actionStatusRepo;
-    private final EmployeeRepo employeeRepo;
     private final DocRepo docRepo;
 
     public DocActionService(DocActionRepo docActionRepo,
                             ActionStatusRepo actionStatusRepo,
-                            EmployeeRepo employeeRepo,
                             DocRepo docRepo){
         this.docActionRepo = docActionRepo;
         this.actionStatusRepo = actionStatusRepo;
-        this.employeeRepo = employeeRepo;
         this.docRepo = docRepo;
     }
 
@@ -38,18 +33,6 @@ public class DocActionService {
         return docActionRepo.findAll(Sort.by(Sort.Direction.DESC, "actionDate"));
     }
 
-    //////////////////////////////////////////////////////////////////////////
-
-    public HashMap<String, Long> actStatistics(){
-        List<Object[]> objList = docActionRepo.statistics();
-        HashMap<String, Long> statsList = new HashMap<>();
-        for (Object[] obj : objList) {
-            statsList.put((String) obj[0], (Long) obj[1]);
-        }
-        return statsList;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
 
 
     @Transactional

@@ -31,6 +31,11 @@ public class WebSecurityConfig {
                         ).hasRole("ADMIN")
 
                         .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/documents/expired"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
                                 HttpMethod.PUT,
                                 "/api/v1/documents/**"
                         ).hasRole("ADMIN")
@@ -62,25 +67,22 @@ public class WebSecurityConfig {
                                 "/api/v1/document-requests/**"
                         ).hasAnyRole("USER", "ADMIN")
 
-                        .requestMatchers("/admin/**")
-                        .hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/reference/**"
+                        ).hasAnyRole("USER", "ADMIN")
 
-                        .requestMatchers("/user/**")
-                        .hasRole("USER")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/employees/**"
+                        ).hasRole("ADMIN")
 
                         .anyRequest()
                         .authenticated()
                 )
                 .userDetailsService(customUserDetailsService)
-                .headers(headers ->
-                        headers.frameOptions(frame ->
-                                frame.sameOrigin()
-                        )
-                )
                 .formLogin(login -> login
-                        .loginPage("/login")
                         .permitAll()
-                        .defaultSuccessUrl("/default", true)
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")

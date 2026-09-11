@@ -10,7 +10,7 @@ import lombok.Setter;
 
 
 @Entity
-@Table(name = "orders")
+@Table(name = "document_requests")
 @Getter
 @Setter
 public class DocumentRequest {
@@ -27,7 +27,7 @@ public class DocumentRequest {
     @Column(name = "request_status", nullable = false)
     private RequestStatus requestStatus;
 
-    @Column(name = "order_date")
+    @Column(name = "request_date")
     LocalDate requestDate;
 
     @Version

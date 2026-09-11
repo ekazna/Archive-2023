@@ -1,12 +1,10 @@
 package com.archive.archive.audit;
 
-import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 public interface DocActionRepo extends JpaRepository<DocAction, Integer>{
-    
-    @Query(nativeQuery = true, value = "SELECT s.name, COUNT(a.id) FROM actions a FULL OUTER JOIN statuses s USING(status_id) GROUP BY s.name ORDER BY s.name")
-    List<Object[]> statistics();
+
+    // старая статистика
+    //@Query(nativeQuery = true, value = "SELECT s.name, COUNT(a.id) FROM actions a FULL OUTER JOIN statuses s USING(status_id) GROUP BY s.name ORDER BY s.name")
+    //List<Object[]> statistics();
 }

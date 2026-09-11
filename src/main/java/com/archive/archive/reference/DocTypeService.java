@@ -19,10 +19,7 @@ public class DocTypeService {
     }
 
     public List<DocType> getAll(){
-        return docTypeRepo.findAll();
-    }
-
-    public List<DocType> getAllSortedAsc(){
         return docTypeRepo.findAll(Sort.by("name"));
     }
+
 }

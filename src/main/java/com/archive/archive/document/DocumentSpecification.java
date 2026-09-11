@@ -3,6 +3,8 @@ package com.archive.archive.document;
 import com.archive.archive.document.dto.DocumentFilter;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDate;
+
 public class DocumentSpecification {
 
     public static Specification<Doc> accessibleTo(Integer accessLevel){
@@ -26,6 +28,14 @@ public class DocumentSpecification {
                 criteriaBuilder.equal(
                         root.get("status"),
                         DocumentStatus.ACTIVE
+                );
+    }
+
+    public static Specification<Doc> expiredAsOf(LocalDate date) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.lessThanOrEqualTo(
+                        root.get("deletionDate"),
+                        date
                 );
     }
 
