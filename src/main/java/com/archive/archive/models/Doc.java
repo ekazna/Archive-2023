@@ -71,7 +71,7 @@ public class Doc {
 
     @JsonIgnore
     @OneToMany(mappedBy = "doc")
-    List<Order> orders; 
+    List<DocumentRequest> documentRequests;
 
 
 }

@@ -60,4 +60,15 @@ public class GlobalExceptionHandler {
 
         return problem;
     }
+
+    @ExceptionHandler(InvalidRequestStateException.class)
+    public ProblemDetail handleInvalidRequestState(
+            InvalidRequestStateException exception){
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+
+        problem.setTitle("Неверное состояние запроса документа");
+        problem.setDetail(exception.getMessage());
+
+        return problem;
+    }
 }

@@ -8,7 +8,7 @@ import lombok.Data;
 @Entity
 @Table(name = "orders")
 @Data
-public class Order {
+public class DocumentRequest {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,7 +24,7 @@ public class Order {
 
 
     @Column(name = "order_date")
-    LocalDate orderDate;
+    LocalDate requestDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doc_id", nullable = false)

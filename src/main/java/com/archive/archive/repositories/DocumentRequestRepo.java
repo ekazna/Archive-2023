@@ -3,35 +3,34 @@ package com.archive.archive.repositories;
 
 import java.util.List;
 
+import com.archive.archive.models.DocumentRequest;
 import com.archive.archive.models.RequestStatus;
 import com.archive.archive.models.RequestType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.archive.archive.models.Order;
+public interface DocumentRequestRepo extends JpaRepository<DocumentRequest, Integer> {
 
-public interface OrderRepo extends JpaRepository<Order, Integer> {
-
-    List<Order> findByRequestTypeAndRequestStatus(
+    List<DocumentRequest> findByRequestTypeAndRequestStatus(
             RequestType requestType,
             RequestStatus requestStatus
     );
 
-    List<Order> findByRequestTypeAndRequestStatusOrderByDoc_Name(
+    List<DocumentRequest> findByRequestTypeAndRequestStatusOrderByDoc_Name(
             RequestType requestType,
             RequestStatus requestStatus
     );
 
-    List<Order> findByRequestTypeAndRequestStatusOrderByDoc_Folder(
+    List<DocumentRequest> findByRequestTypeAndRequestStatusOrderByDoc_Folder(
             RequestType requestType,
             RequestStatus requestStatus
     );
 
-    List<Order> findByRequestTypeAndRequestStatusOrderByEmployee_Email(
+    List<DocumentRequest> findByRequestTypeAndRequestStatusOrderByEmployee_Email(
             RequestType requestType,
             RequestStatus requestStatus
     );
 
-    List<Order> findByRequestTypeAndRequestStatusOrderByOrderDate(
+    List<DocumentRequest> findByRequestTypeAndRequestStatusOrderByOrderDate(
             RequestType requestType,
             RequestStatus requestStatus
     );

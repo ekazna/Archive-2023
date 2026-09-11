@@ -26,7 +26,7 @@ import com.archive.archive.services.DocActionService;
 import com.archive.archive.services.DocService;
 import com.archive.archive.services.DocTypeService;
 import com.archive.archive.services.EmployeeService;
-import com.archive.archive.services.OrderService;
+import com.archive.archive.services.DocumentRequestService;
 
 @RequiredArgsConstructor
 @RestController
@@ -38,7 +38,7 @@ public class AdminController {
     private final DocService docService;
     private final DocTypeService docTypeService;
     private final EmployeeService employeeService;
-    private final OrderService orderService;
+    private final DocumentRequestService documentRequestService;
     private final DocActionService docActionService;
     
     
@@ -118,25 +118,25 @@ public class AdminController {
 
     @GetMapping("/copies/")
     public ModelAndView seeCopyOrders(Model model, @Param("orderSorting") OrderSorting orderSorting){
-        List<Order> orderList = orderService.findByTypeAndStatusAndSort(
+        List<DocumentRequest> documentRequestList = documentRequestService.findByTypeAndStatusAndSort(
                 RequestType.COPY, RequestStatus.REQUESTED, orderSorting);
-        model.addAttribute("orderList", orderList);
+        model.addAttribute("orderList", documentRequestList);
 
         return new ModelAndView("adminCopyOrders");
     }
 
     @DeleteMapping("/copies/{id}")
     public ModelAndView copyOrderComplete(@PathVariable Integer id){
-        orderService.completeCopyRequest(id);
+        documentRequestService.completeCopyRequest(id);
         return new ModelAndView("redirect:/admin/copies/");
     }
 
 
     @GetMapping("/originals/")
     public ModelAndView seeOriginalOrders(Model model, @Param("orderSorting") OrderSorting orderSorting){
-        List<Order> orderList = orderService.findByTypeAndStatusAndSort(
+        List<DocumentRequest> documentRequestList = documentRequestService.findByTypeAndStatusAndSort(
                 RequestType.ORIGINAL, RequestStatus.REQUESTED, orderSorting );
-        model.addAttribute(orderList);
+        model.addAttribute(documentRequestList);
 
         return new ModelAndView("adminOriginalOrders");
     }
@@ -144,23 +144,23 @@ public class AdminController {
 
     @PutMapping("/originals/{id}")
     public ModelAndView issueOriginal(@PathVariable Integer id){
-        orderService.issueOriginal(id);
+        documentRequestService.issueOriginal(id);
         return new ModelAndView("redirect:/admin/originals/");
     }
 
 
     @GetMapping("/returns/")
     public ModelAndView returnOriginalOrders(Model model, @Param("orderSorting") OrderSorting orderSorting){
-        List<Order> orderList = orderService.findByTypeAndStatusAndSort(
+        List<DocumentRequest> documentRequestList = documentRequestService.findByTypeAndStatusAndSort(
                 RequestType.ORIGINAL, RequestStatus.ISSUED, orderSorting);
-        model.addAttribute(orderList);
+        model.addAttribute(documentRequestList);
 
         return new ModelAndView("adminDocReturns");
     }
 
     @DeleteMapping("/returns/{id}")
     public ModelAndView returnComplete(@PathVariable Integer id){
-        orderService.returnOriginal(id);
+        documentRequestService.returnOriginal(id);
         return new ModelAndView("redirect:/admin/returns/");
     }
 

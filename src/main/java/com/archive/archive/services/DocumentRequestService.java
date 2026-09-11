@@ -3,32 +3,32 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.archive.archive.exceptions.ResourceNotFoundException;
+import com.archive.archive.exceptions.InvalidRequestStateException;
 import com.archive.archive.models.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.archive.archive.config.IAuthenticationFacade;
-import com.archive.archive.repositories.DocRepo;
 import com.archive.archive.repositories.EmployeeRepo;
-import com.archive.archive.repositories.OrderRepo;
+import com.archive.archive.repositories.DocumentRequestRepo;
 import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
 @Transactional(readOnly = true)
-public class OrderService {
-    private final OrderRepo orderRepo;
+public class DocumentRequestService {
+    private final DocumentRequestRepo documentRequestRepo;
     private final EmployeeRepo employeeRepo;
     private final DocService docService;
     private final DocActionService docActionService;
     private final IAuthenticationFacade authenticationFacade;
 
-    public OrderService(OrderRepo orderRepo,
-                        EmployeeRepo employeeRepo,
-                        DocService docService,
-                        DocActionService docActionService,
-                        IAuthenticationFacade authenticationFacade) {
-        this.orderRepo = orderRepo;
+    public DocumentRequestService(DocumentRequestRepo documentRequestRepo,
+                                  EmployeeRepo employeeRepo,
+                                  DocService docService,
+                                  DocActionService docActionService,
+                                  IAuthenticationFacade authenticationFacade) {
+        this.documentRequestRepo = documentRequestRepo;
         this.employeeRepo = employeeRepo;
         this.docService= docService;
         this.docActionService = docActionService;
@@ -43,39 +43,46 @@ public class OrderService {
 
 
     @Transactional
-    public void createRequest(RequestType requestType, Integer docId) {
+    public DocumentRequest createRequest(RequestType requestType, Integer docId) {
         Employee employee = getCurrentUser();
 
         Doc doc = docService.getById(docId);
 
-        Order request = new Order();
+        DocumentRequest request = new DocumentRequest();
 
         request.setDoc(doc);
         request.setEmployee(employee);
-        request.setOrderDate(LocalDate.now());
+        request.setRequestDate(LocalDate.now());
 
         request.setRequestType(requestType);
         request.setRequestStatus(RequestStatus.REQUESTED);
 
-        orderRepo.save(request);
+        DocumentRequest savedRequest = documentRequestRepo.save(request);
 
         if (requestType == RequestType.COPY) {
             docActionService.recordAction(
-                    DocumentActionType.REQUESTED_COPY, docId, employee
-            );
+                    DocumentActionType.REQUESTED_COPY, docId, employee);
         } else {
             docActionService.recordAction(
-                    DocumentActionType.REQUESTED_ORIGINAL,
-                    docId, employee);
+                    DocumentActionType.REQUESTED_ORIGINAL, docId, employee);
         }
+
+        return savedRequest;
     }
 
     @Transactional
     public void issueOriginal(Integer id) {
 
-        Order request = orderRepo.findById(id)
+        DocumentRequest request = documentRequestRepo.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Request", id));
+                        new ResourceNotFoundException("Document request", id));
+
+        if (request.getRequestType() != RequestType.ORIGINAL){
+            throw new InvalidRequestStateException("Выдать можно только оригиналы");
+        }
+        if (request.getRequestStatus() != RequestStatus.REQUESTED){
+            throw new InvalidRequestStateException("Можно выдать только запрошенные оригиналы");
+        }
 
         Doc doc = request.getDoc();
 
@@ -99,8 +106,15 @@ public class OrderService {
     @Transactional
     public void completeCopyRequest(Integer id) {
 
-        Order request = orderRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Request order", id));
+        DocumentRequest request = documentRequestRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Document request", id));
+
+        if (request.getRequestType() != RequestType.COPY){
+            throw new InvalidRequestStateException("Так можно отправить только копию");
+        }
+        if (request.getRequestStatus() != RequestStatus.REQUESTED) {
+            throw new InvalidRequestStateException("Только запрошенные копии можно отправить");
+        }
 
         request.setRequestStatus(RequestStatus.COMPLETED);
 
@@ -112,9 +126,22 @@ public class OrderService {
     @Transactional
     public void returnOriginal(Integer id) {
 
-        Order request = orderRepo.findById(id)
+        DocumentRequest request = documentRequestRepo.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Request", id));
+                        new ResourceNotFoundException("Document request", id));
+
+        if (request.getRequestType() != RequestType.ORIGINAL) {
+            throw new InvalidRequestStateException(
+                    "Вернуть можно только оригинал"
+            );
+        }
+
+        if (request.getRequestStatus() != RequestStatus.ISSUED) {
+            throw new InvalidRequestStateException(
+                    "Оригинал должен быть выдан перед возвращением его в архив"
+            );
+        }
+
 
         Doc doc = request.getDoc();
 
@@ -138,7 +165,7 @@ public class OrderService {
 
 
 
-    public List<Order> findByTypeAndStatusAndSort(
+    public List<DocumentRequest> findByTypeAndStatusAndSort(
             RequestType requestType,
             RequestStatus requestStatus,
             OrderSorting orderSorting
@@ -146,41 +173,41 @@ public class OrderService {
         String sortType = orderSorting.getSortType();
 
         if (sortType == null) {
-            return orderRepo.findByRequestTypeAndRequestStatus(
+            return documentRequestRepo.findByRequestTypeAndRequestStatus(
                     requestType,
                     requestStatus
             );
         }
 
         if (sortType.equals("employeeEmail")) {
-            return orderRepo.findByRequestTypeAndRequestStatusOrderByEmployee_Email(
+            return documentRequestRepo.findByRequestTypeAndRequestStatusOrderByEmployee_Email(
                     requestType,
                     requestStatus
             );
         }
 
         if (sortType.equals("docName")) {
-            return orderRepo.findByRequestTypeAndRequestStatusOrderByDoc_Name(
+            return documentRequestRepo.findByRequestTypeAndRequestStatusOrderByDoc_Name(
                     requestType,
                     requestStatus
             );
         }
 
         if (sortType.equals("docFolder")) {
-            return orderRepo.findByRequestTypeAndRequestStatusOrderByDoc_Folder(
+            return documentRequestRepo.findByRequestTypeAndRequestStatusOrderByDoc_Folder(
                     requestType,
                     requestStatus
             );
         }
 
         if (sortType.equals("orderDate")) {
-            return orderRepo.findByRequestTypeAndRequestStatusOrderByOrderDate(
+            return documentRequestRepo.findByRequestTypeAndRequestStatusOrderByOrderDate(
                     requestType,
                     requestStatus
             );
         }
 
-        return orderRepo.findByRequestTypeAndRequestStatus(
+        return documentRequestRepo.findByRequestTypeAndRequestStatus(
                 requestType,
                 requestStatus
         );

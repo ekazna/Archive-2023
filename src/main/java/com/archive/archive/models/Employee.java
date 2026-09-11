@@ -1,6 +1,5 @@
 package com.archive.archive.models;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -58,7 +57,7 @@ public class Employee implements UserDetails{
 
     @JsonIgnore
     @OneToMany(mappedBy = "employee")
-    List<Order> orders; 
+    List<DocumentRequest> documentRequests;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)

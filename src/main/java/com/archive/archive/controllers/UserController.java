@@ -19,7 +19,7 @@ import com.archive.archive.services.DepartmentService;
 import com.archive.archive.services.DocService;
 import com.archive.archive.services.DocTypeService;
 import com.archive.archive.services.EmployeeService;
-import com.archive.archive.services.OrderService;
+import com.archive.archive.services.DocumentRequestService;
 
 @RestController
 @RequestMapping("/user")
@@ -29,7 +29,7 @@ public class UserController {
     private final DocService docService;
     private final DocTypeService docTypeService;
     private final EmployeeService employeeService;
-    private final OrderService orderService;
+    private final DocumentRequestService documentRequestService;
 
     public UserController(
             DepartmentService departmentService,
@@ -37,14 +37,14 @@ public class UserController {
             DocService docService,
             DocTypeService docTypeService,
             EmployeeService employeeService,
-            OrderService orderService
+            DocumentRequestService documentRequestService
     ) {
         this.departmentService = departmentService;
         this.clientService = clientService;
         this.docService = docService;
         this.docTypeService = docTypeService;
         this.employeeService = employeeService;
-        this.orderService = orderService;
+        this.documentRequestService = documentRequestService;
     }
 
  
@@ -67,14 +67,14 @@ public class UserController {
 
     @PostMapping("/orderCopy/{id}")
     public ModelAndView orderCopy(@PathVariable Integer id){
-        orderService.createRequest(RequestType.COPY, id);
+        documentRequestService.createRequest(RequestType.COPY, id);
         return new ModelAndView("redirect:/user/");
     }
 
     
     @PostMapping("/orderOriginal/{id}")
     public ModelAndView orderOriginal(@PathVariable Integer id){
-        orderService.createRequest(RequestType.ORIGINAL, id);
+        documentRequestService.createRequest(RequestType.ORIGINAL, id);
         return new ModelAndView("redirect:/user/");
     }
     
