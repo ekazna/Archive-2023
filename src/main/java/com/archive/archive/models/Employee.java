@@ -40,25 +40,10 @@ public class Employee implements UserDetails{
     @Column(name = "password")
     String password;
 
-    @ManyToOne 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dept_id", nullable = false)
     Department department;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "docEmployee")
-    List<Doc> docsAbout;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "fromEmployee")
-    List<Doc> docsGiven;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "employee")
-    List<DocAction> docActions;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "employee")
-    List<DocumentRequest> documentRequests;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)

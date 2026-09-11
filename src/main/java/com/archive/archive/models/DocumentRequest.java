@@ -25,7 +25,6 @@ public class DocumentRequest {
     @Column(name = "request_status", nullable = false)
     private RequestStatus requestStatus;
 
-
     @Column(name = "order_date")
     LocalDate requestDate;
 

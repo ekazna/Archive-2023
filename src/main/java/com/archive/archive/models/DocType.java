@@ -1,8 +1,5 @@
 package com.archive.archive.models;
 
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,7 +27,4 @@ public class DocType {
     @Column(name = "storing_time")
     Integer storingTime;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "docType")
-    List<Doc> docs;
 }

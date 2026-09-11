@@ -51,34 +51,27 @@ public class Doc {
     private Long version;
 
 
-    @ManyToOne 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id", nullable = false)
     DocType docType;
 
-    @ManyToOne 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dept_id", nullable = false)
     Department department;
 
-    @ManyToOne 
-    @JoinColumn(name = "client_id", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
     Client client;
 
-    @ManyToOne 
-    @JoinColumn(name = "emp_id", nullable = true) //поиск по имени для доков HR
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "emp_id")  //поиск по имени для доков HR
     Employee docEmployee;
 
-    @ManyToOne 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "given_by_id", nullable = false) // кто передал в архив документ
     Employee fromEmployee;
 
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "doc")
-    List<DocAction> docActions; 
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "doc")
-    List<DocumentRequest> documentRequests;
 
 
 }
