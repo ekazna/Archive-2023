@@ -1,6 +1,6 @@
-package com.archive.archive.dto;
+package com.archive.archive.documentrequest.dto;
 
-import com.archive.archive.models.RequestType;
+import com.archive.archive.documentrequest.RequestType;
 import jakarta.validation.constraints.NotNull;
 
 public record DocumentRequestCreateRequest(

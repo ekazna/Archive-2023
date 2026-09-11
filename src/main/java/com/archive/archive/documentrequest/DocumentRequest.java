@@ -1,7 +1,9 @@
-package com.archive.archive.models;
+package com.archive.archive.documentrequest;
 
 import java.time.LocalDate;
 
+import com.archive.archive.document.Doc;
+import com.archive.archive.models.Employee;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,11 +34,11 @@ public class DocumentRequest {
     @Column(nullable = false)
     private Long version;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "doc_id", nullable = false)
     Doc doc;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "emp_id", nullable = false)
     Employee employee;
 

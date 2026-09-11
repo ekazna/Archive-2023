@@ -1,23 +1,20 @@
-package com.archive.archive.services;
+package com.archive.archive.documentrequest;
 import java.time.LocalDate;
-import java.util.List;
 
-import com.archive.archive.dto.DocumentRequestFilter;
-import com.archive.archive.dto.DocumentRequestResponse;
+import com.archive.archive.document.Doc;
+import com.archive.archive.documentrequest.dto.DocumentRequestFilter;
+import com.archive.archive.documentrequest.dto.DocumentRequestResponse;
 import com.archive.archive.exceptions.ResourceNotFoundException;
 import com.archive.archive.exceptions.InvalidRequestStateException;
-import com.archive.archive.mappers.DocumentRequestMapper;
 import com.archive.archive.models.*;
-import com.archive.archive.repositories.specification.DocumentRequestSpecification;
+import com.archive.archive.security.CurrentUserService;
+import com.archive.archive.services.DocActionService;
+import com.archive.archive.document.DocService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import com.archive.archive.config.IAuthenticationFacade;
-import com.archive.archive.repositories.EmployeeRepo;
-import com.archive.archive.repositories.DocumentRequestRepo;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -25,37 +22,30 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class DocumentRequestService {
     private final DocumentRequestRepo documentRequestRepo;
-    private final EmployeeRepo employeeRepo;
     private final DocService docService;
     private final DocActionService docActionService;
-    private final IAuthenticationFacade authenticationFacade;
     private final DocumentRequestMapper documentRequestMapper;
+    private final CurrentUserService currentUserService;
 
 
     public DocumentRequestService(DocumentRequestRepo documentRequestRepo,
-                                  EmployeeRepo employeeRepo,
                                   DocService docService,
                                   DocActionService docActionService,
-                                  IAuthenticationFacade authenticationFacade,
-                                  DocumentRequestMapper documentRequestMapper) {
+                                  DocumentRequestMapper documentRequestMapper,
+                                  CurrentUserService currentUserService) {
         this.documentRequestRepo = documentRequestRepo;
-        this.employeeRepo = employeeRepo;
         this.docService= docService;
         this.docActionService = docActionService;
-        this.authenticationFacade = authenticationFacade;
         this.documentRequestMapper = documentRequestMapper;
+        this.currentUserService = currentUserService;
     }
 
 
-    public Employee getCurrentUser() {
-        Authentication authentication = authenticationFacade.getAuthentication();
-        return employeeRepo.findByLogin(authentication.getName());
-    }
 
 
     @Transactional
     public DocumentRequestResponse createRequest(RequestType requestType, Integer docId) {
-        Employee employee = getCurrentUser();
+        Employee employee = currentUserService.getCurrentEmployee();
 
         Doc doc = docService.getById(docId);
 
@@ -110,7 +100,7 @@ public class DocumentRequestService {
         docActionService.recordAction(
                 DocumentActionType.ISSUED_ORIGINAL,
                 doc.getId(),
-                getCurrentUser()
+                currentUserService.getCurrentEmployee()
         );
 
         docActionService.recordAction(
@@ -136,7 +126,7 @@ public class DocumentRequestService {
         request.setRequestStatus(RequestStatus.COMPLETED);
 
         docActionService.recordAction(
-                DocumentActionType.SATISFIED_REQUEST, request.getDoc().getId(), getCurrentUser()
+                DocumentActionType.SATISFIED_REQUEST, request.getDoc().getId(), currentUserService.getCurrentEmployee()
         );
     }
 
@@ -169,7 +159,7 @@ public class DocumentRequestService {
         docActionService.recordAction(
                 DocumentActionType.ACCEPTED_ORIGINAL,
                 doc.getId(),
-                getCurrentUser()
+                currentUserService.getCurrentEmployee()
         );
 
         docActionService.recordAction(
@@ -208,7 +198,7 @@ public class DocumentRequestService {
 
     private Specification<DocumentRequest> accessibleToCurrentUser() {
 
-        Employee currentUser = getCurrentUser();
+        Employee currentUser = currentUserService.getCurrentEmployee();
 
         if (currentUser.getRole() == Role.ADMIN) {
             return (root, query, criteriaBuilder) ->

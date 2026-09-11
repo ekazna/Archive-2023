@@ -1,9 +1,11 @@
-package com.archive.archive.models;
+package com.archive.archive.document;
 
 import java.time.LocalDate;
-import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.archive.archive.models.Client;
+import com.archive.archive.models.Department;
+import com.archive.archive.models.DocType;
+import com.archive.archive.models.Employee;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -51,11 +53,11 @@ public class Doc {
     private Long version;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "type_id", nullable = false)
     DocType docType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "dept_id", nullable = false)
     Department department;
 
@@ -67,7 +69,7 @@ public class Doc {
     @JoinColumn(name = "emp_id")  //поиск по имени для доков HR
     Employee docEmployee;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "given_by_id", nullable = false) // кто передал в архив документ
     Employee fromEmployee;
 

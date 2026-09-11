@@ -1,4 +1,4 @@
-package com.archive.archive.dto;
+package com.archive.archive.document.dto;
 
 import java.time.LocalDate;
 import lombok.Getter;

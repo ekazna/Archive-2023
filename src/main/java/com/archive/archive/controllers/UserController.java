@@ -3,6 +3,8 @@ package com.archive.archive.controllers;
 import java.util.List;
 
 
+import com.archive.archive.document.Doc;
+import com.archive.archive.documentrequest.RequestType;
 import com.archive.archive.models.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.ui.Model;
@@ -16,10 +18,10 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.archive.archive.services.ClientService;
 import com.archive.archive.services.DepartmentService;
-import com.archive.archive.services.DocService;
+import com.archive.archive.document.DocService;
 import com.archive.archive.services.DocTypeService;
 import com.archive.archive.services.EmployeeService;
-import com.archive.archive.services.DocumentRequestService;
+import com.archive.archive.documentrequest.DocumentRequestService;
 
 @RestController
 @RequestMapping("/user")

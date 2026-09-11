@@ -1,5 +1,6 @@
 package com.archive.archive.config;
 
+import com.archive.archive.security.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,10 +16,10 @@ import com.archive.archive.services.EmployeeService;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-    private final EmployeeService employeeService;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    public WebSecurityConfig(EmployeeService employeeService){
-        this.employeeService = employeeService;
+    public WebSecurityConfig(CustomUserDetailsService customUserDetailsService){
+        this.customUserDetailsService = customUserDetailsService;
     }
     
     @Bean
@@ -48,7 +49,7 @@ public class WebSecurityConfig {
 
                         .requestMatchers(
                                 HttpMethod.POST,
-                                "api/v1/document-requests"
+                                "/api/v1/document-requests"
                         ).hasAnyRole("USER", "ADMIN")
 
                         .requestMatchers(
@@ -72,7 +73,7 @@ public class WebSecurityConfig {
                         .anyRequest()
                         .authenticated()
                 )
-                .userDetailsService(employeeService)
+                .userDetailsService(customUserDetailsService)
                 .headers(headers ->
                         headers.frameOptions(frame ->
                                 frame.sameOrigin()

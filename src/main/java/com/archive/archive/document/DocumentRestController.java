@@ -1,12 +1,10 @@
-package com.archive.archive.controllers.rest;
+package com.archive.archive.document;
 
 
-import com.archive.archive.dto.CreateDocumentRequest;
-import com.archive.archive.dto.DocumentFilter;
-import com.archive.archive.dto.DocumentResponse;
-import com.archive.archive.dto.UpdateDocumentRequest;
-import com.archive.archive.models.Doc;
-import com.archive.archive.services.DocService;
+import com.archive.archive.document.dto.CreateDocumentRequest;
+import com.archive.archive.document.dto.DocumentFilter;
+import com.archive.archive.document.dto.DocumentResponse;
+import com.archive.archive.document.dto.UpdateDocumentRequest;
 
 import jakarta.validation.Valid;
 

@@ -1,4 +1,4 @@
-package com.archive.archive.repositories;
+package com.archive.archive.document;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -6,8 +6,6 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-
-import com.archive.archive.models.Doc;
 
 public interface DocRepo extends JpaRepository<Doc, Integer>, JpaSpecificationExecutor<Doc>{
     @Query("SELECT d FROM Doc d WHERE d.name LIKE CONCAT('%',:keyword,'%')")

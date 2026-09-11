@@ -1,8 +1,6 @@
-package com.archive.archive.repositories.specification;
+package com.archive.archive.document;
 
-import com.archive.archive.dto.DocumentFilter;
-import com.archive.archive.models.Doc;
-import com.archive.archive.models.DocumentStatus;
+import com.archive.archive.document.dto.DocumentFilter;
 import org.springframework.data.jpa.domain.Specification;
 
 public class DocumentSpecification {

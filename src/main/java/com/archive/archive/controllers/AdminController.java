@@ -1,6 +1,7 @@
 package com.archive.archive.controllers;
 
-import com.archive.archive.dto.UpdateDocumentRequest;
+import com.archive.archive.document.Doc;
+import com.archive.archive.document.dto.UpdateDocumentRequest;
 import com.archive.archive.models.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +24,10 @@ import org.springframework.web.servlet.ModelAndView;
 import com.archive.archive.services.ClientService;
 import com.archive.archive.services.DepartmentService;
 import com.archive.archive.services.DocActionService;
-import com.archive.archive.services.DocService;
+import com.archive.archive.document.DocService;
 import com.archive.archive.services.DocTypeService;
 import com.archive.archive.services.EmployeeService;
-import com.archive.archive.services.DocumentRequestService;
+import com.archive.archive.documentrequest.DocumentRequestService;
 
 @RequiredArgsConstructor
 @RestController

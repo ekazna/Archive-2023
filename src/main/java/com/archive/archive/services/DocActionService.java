@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 
+import com.archive.archive.document.Doc;
 import com.archive.archive.exceptions.ResourceNotFoundException;
 import com.archive.archive.models.*;
 import org.springframework.data.domain.Sort;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.archive.archive.repositories.ActionStatusRepo;
 import com.archive.archive.repositories.DocActionRepo;
-import com.archive.archive.repositories.DocRepo;
+import com.archive.archive.document.DocRepo;
 import com.archive.archive.repositories.EmployeeRepo;
 import org.springframework.transaction.annotation.Transactional;
 

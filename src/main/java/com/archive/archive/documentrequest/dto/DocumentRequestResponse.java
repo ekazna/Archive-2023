@@ -1,7 +1,7 @@
-package com.archive.archive.dto;
+package com.archive.archive.documentrequest.dto;
 
-import com.archive.archive.models.RequestStatus;
-import com.archive.archive.models.RequestType;
+import com.archive.archive.documentrequest.RequestStatus;
+import com.archive.archive.documentrequest.RequestType;
 
 import java.time.LocalDate;
 

@@ -2,6 +2,7 @@ package com.archive.archive.models;
 
 import java.time.LocalDateTime;
 
+import com.archive.archive.document.Doc;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,11 +29,11 @@ public class DocAction {
     @JoinColumn(name = "doc_id")
     Doc doc;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "emp_id", nullable = false)
     Employee employee;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "status_id", nullable = false)
     ActionStatus actionStatus;
 }

@@ -1,25 +1,23 @@
-package com.archive.archive.services;
+package com.archive.archive.document;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 
-import com.archive.archive.dto.CreateDocumentRequest;
-import com.archive.archive.dto.DocumentFilter;
-import com.archive.archive.dto.UpdateDocumentRequest;
+import com.archive.archive.document.dto.CreateDocumentRequest;
+import com.archive.archive.document.dto.DocumentFilter;
+import com.archive.archive.document.dto.UpdateDocumentRequest;
 import com.archive.archive.exceptions.ResourceNotFoundException;
 import com.archive.archive.models.*;
 import com.archive.archive.repositories.*;
-import com.archive.archive.repositories.specification.DocumentSpecification;
+import com.archive.archive.security.CurrentUserService;
+import com.archive.archive.services.DocActionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-
-import com.archive.archive.config.IAuthenticationFacade;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,9 +28,9 @@ public class DocService {
     private final DocTypeRepo docTypeRepo;
     private final EmployeeRepo employeeRepo;
     private final DocActionService docActionService;
-    private final IAuthenticationFacade authenticationFacade;
     private final DepartmentRepo departmentRepo;
     private final ClientRepo clientRepo;
+    private final CurrentUserService currentUserService;
 
 
     public DocService(
@@ -40,24 +38,19 @@ public class DocService {
             DocTypeRepo docTypeRepo,
             EmployeeRepo employeeRepo,
             DocActionService docActionService,
-            IAuthenticationFacade authenticationFacade,
             DepartmentRepo departmentRepo,
-            ClientRepo clientRepo
+            ClientRepo clientRepo,
+            CurrentUserService currentUserService
     ) {
         this.docRepo = docRepo;
         this.docTypeRepo = docTypeRepo;
         this.employeeRepo = employeeRepo;
         this.docActionService = docActionService;
-        this.authenticationFacade = authenticationFacade;
         this.departmentRepo = departmentRepo;
         this.clientRepo = clientRepo;
+        this.currentUserService = currentUserService;
     }
 
-
-    public Employee getCurrentUser(){
-        Authentication authentication = authenticationFacade.getAuthentication();
-        return employeeRepo.findByLogin(authentication.getName());
-    }
 
     
     public List<Doc> getAll(){
@@ -76,7 +69,7 @@ public class DocService {
 
     @Deprecated
     public List<Doc> getFilteredSpecification(TestModel testModel){
-        Employee emp = getCurrentUser();
+        Employee emp = currentUserService.getCurrentEmployee();
         Integer deptId = emp.getDepartment().getId();
         if (deptId == 13){
             testModel.setAccessLevel(10000);
@@ -156,7 +149,7 @@ public class DocService {
         docActionService.recordAction(
                 DocumentActionType.ADDED,
                 savedDoc.getId(),
-                getCurrentUser()
+                currentUserService.getCurrentEmployee()
         );
 
         return savedDoc;
@@ -196,7 +189,7 @@ public class DocService {
 
         doc.setStatus(DocumentStatus.DISPOSED);
 
-        docActionService.recordAction(DocumentActionType.DELETED, doc.getId(), getCurrentUser());
+        docActionService.recordAction(DocumentActionType.DELETED, doc.getId(), currentUserService.getCurrentEmployee());
     }
 
 
@@ -255,7 +248,7 @@ public class DocService {
         docActionService.recordAction(
                 DocumentActionType.EDITED,
                 doc.getId(),
-                getCurrentUser()
+                currentUserService.getCurrentEmployee()
         );
 
         return doc;
@@ -288,7 +281,7 @@ public class DocService {
 
 
     private Specification<Doc> accessibleToCurrentUser() {
-        Employee currentUser = getCurrentUser();
+        Employee currentUser = currentUserService.getCurrentEmployee();
 
         return DocumentSpecification.accessibleTo(
                 currentUser.getAccessLevel()
@@ -306,7 +299,7 @@ public class DocService {
     }
 
     public void validateAccessLevel(Integer requestedAccessLevel){
-        Employee currentUser = getCurrentUser();
+        Employee currentUser = currentUserService.getCurrentEmployee();
 
         if (requestedAccessLevel > currentUser.getAccessLevel()){
             throw new AccessDeniedException("Вы не можете получить доступ к документу с этим Access Level");

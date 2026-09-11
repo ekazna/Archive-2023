@@ -3,6 +3,7 @@ package com.archive.archive.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.archive.archive.document.Doc;
 import org.springframework.data.jpa.domain.Specification;
 
 import jakarta.persistence.criteria.CriteriaBuilder;

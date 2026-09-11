@@ -1,7 +1,6 @@
-package com.archive.archive.mappers;
+package com.archive.archive.documentrequest;
 
-import com.archive.archive.dto.DocumentRequestResponse;
-import com.archive.archive.models.DocumentRequest;
+import com.archive.archive.documentrequest.dto.DocumentRequestResponse;
 import org.springframework.stereotype.Component;
 
 @Component

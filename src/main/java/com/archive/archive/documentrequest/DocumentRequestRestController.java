@@ -1,11 +1,9 @@
-package com.archive.archive.controllers.rest;
+package com.archive.archive.documentrequest;
 
 
-import com.archive.archive.dto.DocumentRequestCreateRequest;
-import com.archive.archive.dto.DocumentRequestFilter;
-import com.archive.archive.dto.DocumentRequestResponse;
-import com.archive.archive.models.DocumentRequest;
-import com.archive.archive.services.DocumentRequestService;
+import com.archive.archive.documentrequest.dto.DocumentRequestCreateRequest;
+import com.archive.archive.documentrequest.dto.DocumentRequestFilter;
+import com.archive.archive.documentrequest.dto.DocumentRequestResponse;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

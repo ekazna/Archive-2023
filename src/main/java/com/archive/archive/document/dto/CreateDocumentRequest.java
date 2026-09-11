@@ -1,4 +1,4 @@
-package com.archive.archive.dto;
+package com.archive.archive.document.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

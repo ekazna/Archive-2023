@@ -1,4 +1,4 @@
-package com.archive.archive.models;
+package com.archive.archive.documentrequest;
 
 public enum RequestStatus {
     REQUESTED,

@@ -1,12 +1,8 @@
-package com.archive.archive.repositories;
+package com.archive.archive.documentrequest;
 
 
-import java.util.List;
 import java.util.Optional;
 
-import com.archive.archive.models.DocumentRequest;
-import com.archive.archive.models.RequestStatus;
-import com.archive.archive.models.RequestType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
