@@ -1,14 +1,16 @@
 package com.archive.archive.documentrequest;
 import java.time.LocalDate;
 
+import com.archive.archive.audit.DocumentActionType;
 import com.archive.archive.document.Doc;
 import com.archive.archive.documentrequest.dto.DocumentRequestFilter;
 import com.archive.archive.documentrequest.dto.DocumentRequestResponse;
+import com.archive.archive.employee.Employee;
+import com.archive.archive.employee.Role;
 import com.archive.archive.exceptions.ResourceNotFoundException;
 import com.archive.archive.exceptions.InvalidRequestStateException;
-import com.archive.archive.models.*;
 import com.archive.archive.security.CurrentUserService;
-import com.archive.archive.services.DocActionService;
+import com.archive.archive.audit.DocActionService;
 import com.archive.archive.document.DocService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

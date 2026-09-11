@@ -1,6 +1,6 @@
 package com.archive.archive.security;
 
-import com.archive.archive.models.Role;
+import com.archive.archive.employee.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

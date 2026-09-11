@@ -1,10 +1,10 @@
 package com.archive.archive.document;
 
 
-import com.archive.archive.document.dto.CreateDocumentRequest;
+import com.archive.archive.document.dto.DocumentCreateRequest;
 import com.archive.archive.document.dto.DocumentFilter;
 import com.archive.archive.document.dto.DocumentResponse;
-import com.archive.archive.document.dto.UpdateDocumentRequest;
+import com.archive.archive.document.dto.DocumentUpdateRequest;
 
 import jakarta.validation.Valid;
 
@@ -58,7 +58,7 @@ public class DocumentRestController {
 
     @PostMapping
     public ResponseEntity<DocumentResponse> createDocument(
-            @Valid @RequestBody CreateDocumentRequest request
+            @Valid @RequestBody DocumentCreateRequest request
             ){
         Doc doc = docService.create(request);
 
@@ -71,7 +71,7 @@ public class DocumentRestController {
     @PutMapping("/{id}")
     public DocumentResponse updateDocument(
             @PathVariable Integer id,
-            @Valid @RequestBody UpdateDocumentRequest request
+            @Valid @RequestBody DocumentUpdateRequest request
             ){
         Doc doc = docService.update(id, request);
 

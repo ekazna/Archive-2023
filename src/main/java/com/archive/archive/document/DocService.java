@@ -4,14 +4,18 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 
-import com.archive.archive.document.dto.CreateDocumentRequest;
+import com.archive.archive.audit.DocumentActionType;
+import com.archive.archive.document.dto.DocumentCreateRequest;
 import com.archive.archive.document.dto.DocumentFilter;
-import com.archive.archive.document.dto.UpdateDocumentRequest;
+import com.archive.archive.document.dto.DocumentUpdateRequest;
+import com.archive.archive.employee.Employee;
+import com.archive.archive.employee.EmployeeRepo;
 import com.archive.archive.exceptions.ResourceNotFoundException;
-import com.archive.archive.models.*;
-import com.archive.archive.repositories.*;
+import com.archive.archive.legacy.filter.TestModel;
+import com.archive.archive.legacy.filter.TestModelSpecification;
+import com.archive.archive.reference.*;
 import com.archive.archive.security.CurrentUserService;
-import com.archive.archive.services.DocActionService;
+import com.archive.archive.audit.DocActionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -89,7 +93,7 @@ public class DocService {
     }
 
     @Transactional
-    public Doc create(CreateDocumentRequest request){
+    public Doc create(DocumentCreateRequest request){
 
         validateAccessLevel(request.accessLevel());
 
@@ -196,7 +200,7 @@ public class DocService {
 
 
     @Transactional
-    public Doc update(Integer id, UpdateDocumentRequest request){
+    public Doc update(Integer id, DocumentUpdateRequest request){
 
         Doc doc = getById(id);
 

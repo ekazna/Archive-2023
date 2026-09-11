@@ -1,7 +1,7 @@
 package com.archive.archive.security;
 
-import com.archive.archive.models.Employee;
-import com.archive.archive.repositories.EmployeeRepo;
+import com.archive.archive.employee.Employee;
+import com.archive.archive.employee.EmployeeRepo;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

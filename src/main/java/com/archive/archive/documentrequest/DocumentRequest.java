@@ -3,7 +3,7 @@ package com.archive.archive.documentrequest;
 import java.time.LocalDate;
 
 import com.archive.archive.document.Doc;
-import com.archive.archive.models.Employee;
+import com.archive.archive.employee.Employee;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

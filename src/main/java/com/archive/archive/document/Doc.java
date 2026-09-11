@@ -2,10 +2,10 @@ package com.archive.archive.document;
 
 import java.time.LocalDate;
 
-import com.archive.archive.models.Client;
-import com.archive.archive.models.Department;
-import com.archive.archive.models.DocType;
-import com.archive.archive.models.Employee;
+import com.archive.archive.reference.Client;
+import com.archive.archive.reference.Department;
+import com.archive.archive.reference.DocType;
+import com.archive.archive.employee.Employee;
 
 import jakarta.persistence.*;
 import lombok.Getter;
