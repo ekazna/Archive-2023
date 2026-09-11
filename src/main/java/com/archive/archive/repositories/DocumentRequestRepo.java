@@ -2,36 +2,34 @@ package com.archive.archive.repositories;
 
 
 import java.util.List;
+import java.util.Optional;
 
 import com.archive.archive.models.DocumentRequest;
 import com.archive.archive.models.RequestStatus;
 import com.archive.archive.models.RequestType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface DocumentRequestRepo extends JpaRepository<DocumentRequest, Integer> {
+public interface DocumentRequestRepo extends
+        JpaRepository<DocumentRequest, Integer>,
+        JpaSpecificationExecutor<DocumentRequest> {
 
-    List<DocumentRequest> findByRequestTypeAndRequestStatus(
-            RequestType requestType,
-            RequestStatus requestStatus
+
+    @Override
+    @EntityGraph(attributePaths = {"doc", "employee"})
+    Page<DocumentRequest> findAll(
+            Specification<DocumentRequest> spec,
+            Pageable pageable
     );
 
-    List<DocumentRequest> findByRequestTypeAndRequestStatusOrderByDoc_Name(
-            RequestType requestType,
-            RequestStatus requestStatus
+    @Override
+    @EntityGraph(attributePaths = {"doc", "employee"})
+    Optional<DocumentRequest> findOne(
+            Specification<DocumentRequest> spec
     );
 
-    List<DocumentRequest> findByRequestTypeAndRequestStatusOrderByDoc_Folder(
-            RequestType requestType,
-            RequestStatus requestStatus
-    );
-
-    List<DocumentRequest> findByRequestTypeAndRequestStatusOrderByEmployee_Email(
-            RequestType requestType,
-            RequestStatus requestStatus
-    );
-
-    List<DocumentRequest> findByRequestTypeAndRequestStatusOrderByOrderDate(
-            RequestType requestType,
-            RequestStatus requestStatus
-    );
 }

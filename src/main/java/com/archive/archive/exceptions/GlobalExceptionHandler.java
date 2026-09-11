@@ -3,6 +3,7 @@ package com.archive.archive.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -68,6 +69,19 @@ public class GlobalExceptionHandler {
 
         problem.setTitle("Неверное состояние запроса документа");
         problem.setDetail(exception.getMessage());
+
+        return problem;
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ProblemDetail handleOptimisticLock(
+            ObjectOptimisticLockingFailureException exception
+    ){
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+
+        problem.setTitle("Concurrent modification");
+        problem.setDetail("Этот ресурс был изменен другим пользователем. " +
+                "Обновите данные и попробуйте снова.");
 
         return problem;
     }

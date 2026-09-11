@@ -3,11 +3,14 @@ package com.archive.archive.models;
 import java.time.LocalDate;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 
 @Entity
 @Table(name = "orders")
-@Data
+@Getter
+@Setter
 public class DocumentRequest {
     @Id
     @Column(name = "id")
@@ -25,6 +28,10 @@ public class DocumentRequest {
 
     @Column(name = "order_date")
     LocalDate requestDate;
+
+    @Version
+    @Column(nullable = false)
+    private Long version;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doc_id", nullable = false)

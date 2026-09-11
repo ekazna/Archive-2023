@@ -2,10 +2,13 @@ package com.archive.archive.controllers.rest;
 
 
 import com.archive.archive.dto.DocumentRequestCreateRequest;
+import com.archive.archive.dto.DocumentRequestFilter;
 import com.archive.archive.dto.DocumentRequestResponse;
 import com.archive.archive.models.DocumentRequest;
 import com.archive.archive.services.DocumentRequestService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +27,8 @@ public class DocumentRequestRestController {
     @PostMapping
     public ResponseEntity<DocumentRequestResponse> createRequest(
             @Valid @RequestBody DocumentRequestCreateRequest request){
-        DocumentRequest documentRequest =
+
+        DocumentRequestResponse response =
                 documentRequestService.createRequest(
                         request.requestType(),
                         request.documentId()
@@ -32,7 +36,7 @@ public class DocumentRequestRestController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(toResponse(documentRequest));
+                .body(response);
 
     }
 
@@ -57,16 +61,18 @@ public class DocumentRequestRestController {
 
 
 
-    private DocumentRequestResponse toResponse(DocumentRequest request){
-        return new DocumentRequestResponse(
-                request.getId(),
-                request.getDoc().getId(),
-                request.getDoc().getName(),
-                request.getEmployee().getId(),
-                request.getEmployee().getEmail(),
-                request.getRequestType(),
-                request.getRequestStatus(),
-                request.getRequestDate()
-        );
+    @GetMapping
+    public Page<DocumentRequestResponse> getRequests(
+            @ModelAttribute DocumentRequestFilter filter, Pageable pageable
+            ){
+        return documentRequestService.getAll(filter, pageable);
+    }
+
+
+    @GetMapping("/{id}")
+    public DocumentRequestResponse getRequest(
+            @PathVariable Integer id
+    ){
+        return documentRequestService.getById(id);
     }
 }

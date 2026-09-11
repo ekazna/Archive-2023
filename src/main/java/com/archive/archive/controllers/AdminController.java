@@ -114,32 +114,32 @@ public class AdminController {
         return new ModelAndView("redirect:/admin/");
     }
 
+//
+//
+//    @GetMapping("/copies/")
+//    public ModelAndView seeCopyOrders(Model model, @Param("orderSorting") OrderSorting orderSorting){
+//        List<DocumentRequest> documentRequestList = documentRequestService.findByTypeAndStatusAndSort(
+//                RequestType.COPY, RequestStatus.REQUESTED, orderSorting);
+//        model.addAttribute("orderList", documentRequestList);
+//
+//        return new ModelAndView("adminCopyOrders");
+//    }
+
+//    @DeleteMapping("/copies/{id}")
+//    public ModelAndView copyOrderComplete(@PathVariable Integer id){
+//        documentRequestService.completeCopyRequest(id);
+//        return new ModelAndView("redirect:/admin/copies/");
+//    }
 
 
-    @GetMapping("/copies/")
-    public ModelAndView seeCopyOrders(Model model, @Param("orderSorting") OrderSorting orderSorting){
-        List<DocumentRequest> documentRequestList = documentRequestService.findByTypeAndStatusAndSort(
-                RequestType.COPY, RequestStatus.REQUESTED, orderSorting);
-        model.addAttribute("orderList", documentRequestList);
-
-        return new ModelAndView("adminCopyOrders");
-    }
-
-    @DeleteMapping("/copies/{id}")
-    public ModelAndView copyOrderComplete(@PathVariable Integer id){
-        documentRequestService.completeCopyRequest(id);
-        return new ModelAndView("redirect:/admin/copies/");
-    }
-
-
-    @GetMapping("/originals/")
-    public ModelAndView seeOriginalOrders(Model model, @Param("orderSorting") OrderSorting orderSorting){
-        List<DocumentRequest> documentRequestList = documentRequestService.findByTypeAndStatusAndSort(
-                RequestType.ORIGINAL, RequestStatus.REQUESTED, orderSorting );
-        model.addAttribute(documentRequestList);
-
-        return new ModelAndView("adminOriginalOrders");
-    }
+//    @GetMapping("/originals/")
+//    public ModelAndView seeOriginalOrders(Model model, @Param("orderSorting") OrderSorting orderSorting){
+//        List<DocumentRequest> documentRequestList = documentRequestService.findByTypeAndStatusAndSort(
+//                RequestType.ORIGINAL, RequestStatus.REQUESTED, orderSorting );
+//        model.addAttribute(documentRequestList);
+//
+//        return new ModelAndView("adminOriginalOrders");
+//    }
 
 
     @PutMapping("/originals/{id}")
@@ -149,14 +149,14 @@ public class AdminController {
     }
 
 
-    @GetMapping("/returns/")
-    public ModelAndView returnOriginalOrders(Model model, @Param("orderSorting") OrderSorting orderSorting){
-        List<DocumentRequest> documentRequestList = documentRequestService.findByTypeAndStatusAndSort(
-                RequestType.ORIGINAL, RequestStatus.ISSUED, orderSorting);
-        model.addAttribute(documentRequestList);
-
-        return new ModelAndView("adminDocReturns");
-    }
+//    @GetMapping("/returns/")
+//    public ModelAndView returnOriginalOrders(Model model, @Param("orderSorting") OrderSorting orderSorting){
+//        List<DocumentRequest> documentRequestList = documentRequestService.findByTypeAndStatusAndSort(
+//                RequestType.ORIGINAL, RequestStatus.ISSUED, orderSorting);
+//        model.addAttribute(documentRequestList);
+//
+//        return new ModelAndView("adminDocReturns");
+//    }
 
     @DeleteMapping("/returns/{id}")
     public ModelAndView returnComplete(@PathVariable Integer id){

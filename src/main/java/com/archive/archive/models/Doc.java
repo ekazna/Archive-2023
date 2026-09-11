@@ -6,12 +6,14 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "docs")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Doc {
     @Id
@@ -43,6 +45,11 @@ public class Doc {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private DocumentStatus status;
+
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
 
     @ManyToOne 
     @JoinColumn(name = "type_id", nullable = false)

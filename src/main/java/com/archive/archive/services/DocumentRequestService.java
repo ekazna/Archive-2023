@@ -2,9 +2,16 @@ package com.archive.archive.services;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.archive.archive.dto.DocumentRequestFilter;
+import com.archive.archive.dto.DocumentRequestResponse;
 import com.archive.archive.exceptions.ResourceNotFoundException;
 import com.archive.archive.exceptions.InvalidRequestStateException;
+import com.archive.archive.mappers.DocumentRequestMapper;
 import com.archive.archive.models.*;
+import com.archive.archive.repositories.specification.DocumentRequestSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -22,17 +29,21 @@ public class DocumentRequestService {
     private final DocService docService;
     private final DocActionService docActionService;
     private final IAuthenticationFacade authenticationFacade;
+    private final DocumentRequestMapper documentRequestMapper;
+
 
     public DocumentRequestService(DocumentRequestRepo documentRequestRepo,
                                   EmployeeRepo employeeRepo,
                                   DocService docService,
                                   DocActionService docActionService,
-                                  IAuthenticationFacade authenticationFacade) {
+                                  IAuthenticationFacade authenticationFacade,
+                                  DocumentRequestMapper documentRequestMapper) {
         this.documentRequestRepo = documentRequestRepo;
         this.employeeRepo = employeeRepo;
         this.docService= docService;
         this.docActionService = docActionService;
         this.authenticationFacade = authenticationFacade;
+        this.documentRequestMapper = documentRequestMapper;
     }
 
 
@@ -43,7 +54,7 @@ public class DocumentRequestService {
 
 
     @Transactional
-    public DocumentRequest createRequest(RequestType requestType, Integer docId) {
+    public DocumentRequestResponse createRequest(RequestType requestType, Integer docId) {
         Employee employee = getCurrentUser();
 
         Doc doc = docService.getById(docId);
@@ -67,7 +78,7 @@ public class DocumentRequestService {
                     DocumentActionType.REQUESTED_ORIGINAL, docId, employee);
         }
 
-        return savedRequest;
+        return documentRequestMapper.toResponse(savedRequest);
     }
 
     @Transactional
@@ -85,6 +96,12 @@ public class DocumentRequestService {
         }
 
         Doc doc = request.getDoc();
+
+        if(!Boolean.TRUE.equals(doc.getPresent())){
+            throw new InvalidRequestStateException(
+                    "Документ уже выдан"
+            );
+        }
 
         doc.setPresent(false);
 
@@ -162,54 +179,44 @@ public class DocumentRequestService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public DocumentRequestResponse getById(Integer id){
+
+        Specification<DocumentRequest> specification =
+                DocumentRequestSpecification.hasId(id)
+                        .and(accessibleToCurrentUser());
+        DocumentRequest request =
+                documentRequestRepo.findOne(specification)
+                        .orElseThrow(() -> new ResourceNotFoundException("Document request", id));
+        return documentRequestMapper.toResponse(request);
+    }
 
 
 
-    public List<DocumentRequest> findByTypeAndStatusAndSort(
-            RequestType requestType,
-            RequestStatus requestStatus,
-            OrderSorting orderSorting
-    ) {
-        String sortType = orderSorting.getSortType();
+    @Transactional(readOnly = true)
+    public Page<DocumentRequestResponse> getAll(DocumentRequestFilter filter, Pageable pageable){
 
-        if (sortType == null) {
-            return documentRequestRepo.findByRequestTypeAndRequestStatus(
-                    requestType,
-                    requestStatus
-            );
+        Specification<DocumentRequest> specification =
+                DocumentRequestSpecification.withFilter(filter)
+                        .and(accessibleToCurrentUser());
+
+
+        return documentRequestRepo
+                .findAll(specification, pageable)
+                .map(documentRequestMapper::toResponse);
+    }
+
+    private Specification<DocumentRequest> accessibleToCurrentUser() {
+
+        Employee currentUser = getCurrentUser();
+
+        if (currentUser.getRole() == Role.ADMIN) {
+            return (root, query, criteriaBuilder) ->
+                    criteriaBuilder.conjunction();
         }
 
-        if (sortType.equals("employeeEmail")) {
-            return documentRequestRepo.findByRequestTypeAndRequestStatusOrderByEmployee_Email(
-                    requestType,
-                    requestStatus
-            );
-        }
-
-        if (sortType.equals("docName")) {
-            return documentRequestRepo.findByRequestTypeAndRequestStatusOrderByDoc_Name(
-                    requestType,
-                    requestStatus
-            );
-        }
-
-        if (sortType.equals("docFolder")) {
-            return documentRequestRepo.findByRequestTypeAndRequestStatusOrderByDoc_Folder(
-                    requestType,
-                    requestStatus
-            );
-        }
-
-        if (sortType.equals("orderDate")) {
-            return documentRequestRepo.findByRequestTypeAndRequestStatusOrderByOrderDate(
-                    requestType,
-                    requestStatus
-            );
-        }
-
-        return documentRequestRepo.findByRequestTypeAndRequestStatus(
-                requestType,
-                requestStatus
+        return DocumentRequestSpecification.requestedBy(
+                currentUser.getId()
         );
     }
-    }
+}

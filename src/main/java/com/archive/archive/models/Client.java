@@ -12,11 +12,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "clients")
-@Data
+@Getter
+@Setter
 public class Client {
     @Id
     @Column(name = "client_id")

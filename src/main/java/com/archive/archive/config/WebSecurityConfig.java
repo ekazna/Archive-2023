@@ -58,6 +58,11 @@ public class WebSecurityConfig {
                                 "/api/v1/document-requests/*/return"
                         ).hasRole("ADMIN")
 
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/document-requests/**"
+                        ).hasAnyRole("USER", "ADMIN")
+
                         .requestMatchers("/admin/**")
                         .hasRole("ADMIN")
 

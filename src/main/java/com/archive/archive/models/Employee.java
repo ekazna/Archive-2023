@@ -4,17 +4,18 @@ import java.util.Collection;
 import java.util.List;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import lombok.Data;
-
 @Entity
 @Table(name = "employees")
-@Data
+@Getter
+@Setter
 public class Employee implements UserDetails{
     @Id
     @Column(name = "emp_id")
