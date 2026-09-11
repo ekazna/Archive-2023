@@ -1,10 +1,7 @@
 package com.archive.archive.document;
 
 
-import com.archive.archive.document.dto.DocumentCreateRequest;
-import com.archive.archive.document.dto.DocumentFilter;
-import com.archive.archive.document.dto.DocumentResponse;
-import com.archive.archive.document.dto.DocumentUpdateRequest;
+import com.archive.archive.document.dto.*;
 
 import jakarta.validation.Valid;
 
@@ -44,10 +41,9 @@ public class DocumentRestController {
 
 
     @GetMapping("/{id}")
-    public DocumentResponse getDocument(@PathVariable Integer id){
-
-        Doc doc = docService.getById(id);
-        return toResponse(doc);
+    public DocumentDetailsResponse getDocument(
+            @PathVariable Integer id){
+        return docService.getById(id);
     }
 
 

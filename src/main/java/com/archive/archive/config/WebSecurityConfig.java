@@ -77,6 +77,11 @@ public class WebSecurityConfig {
                                 "/api/v1/employees/**"
                         ).hasRole("ADMIN")
 
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/audit/**"
+                        ).hasRole("ADMIN")
+
                         .anyRequest()
                         .authenticated()
                 )

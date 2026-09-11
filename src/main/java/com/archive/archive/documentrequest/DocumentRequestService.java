@@ -1,8 +1,10 @@
 package com.archive.archive.documentrequest;
 import java.time.LocalDate;
+import java.util.List;
 
 import com.archive.archive.audit.DocumentActionType;
 import com.archive.archive.document.Doc;
+import com.archive.archive.document.DocumentStatus;
 import com.archive.archive.documentrequest.dto.DocumentRequestFilter;
 import com.archive.archive.documentrequest.dto.DocumentRequestResponse;
 import com.archive.archive.employee.Employee;
@@ -49,7 +51,25 @@ public class DocumentRequestService {
     public DocumentRequestResponse createRequest(RequestType requestType, Integer docId) {
         Employee employee = currentUserService.getCurrentEmployee();
 
-        Doc doc = docService.getById(docId);
+        Doc doc = docService.getAccessibleActiveDocument(docId);
+
+        boolean duplicateExists =
+                documentRequestRepo
+                        .existsByDoc_IdAndEmployee_IdAndRequestTypeAndRequestStatusIn(
+                                doc.getId(),
+                                employee.getId(),
+                                requestType,
+                                List.of(
+                                        RequestStatus.REQUESTED,
+                                        RequestStatus.ISSUED
+                                )
+                        );
+
+        if (duplicateExists) {
+            throw new InvalidRequestStateException(
+                    "An active request of this type already exists for this document"
+            );
+        }
 
         DocumentRequest request = new DocumentRequest();
 
@@ -95,6 +115,12 @@ public class DocumentRequestService {
             );
         }
 
+        if (doc.getStatus() != DocumentStatus.ACTIVE) {
+            throw new InvalidRequestStateException(
+                    "Disposed document cannot be issued"
+            );
+        }
+
         doc.setPresent(false);
 
         request.setRequestStatus(RequestStatus.ISSUED);
@@ -123,6 +149,12 @@ public class DocumentRequestService {
         }
         if (request.getRequestStatus() != RequestStatus.REQUESTED) {
             throw new InvalidRequestStateException("Только запрошенные копии можно отправить");
+        }
+
+        if (request.getDoc().getStatus() != DocumentStatus.ACTIVE) {
+            throw new InvalidRequestStateException(
+                    "Request cannot be completed for a disposed document"
+            );
         }
 
         request.setRequestStatus(RequestStatus.COMPLETED);

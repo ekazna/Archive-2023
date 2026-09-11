@@ -1,5 +1,8 @@
 package com.archive.archive.audit;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DocActionRepo extends JpaRepository<DocAction, Integer>{
@@ -7,4 +10,11 @@ public interface DocActionRepo extends JpaRepository<DocAction, Integer>{
     // старая статистика
     //@Query(nativeQuery = true, value = "SELECT s.name, COUNT(a.id) FROM actions a FULL OUTER JOIN statuses s USING(status_id) GROUP BY s.name ORDER BY s.name")
     //List<Object[]> statistics();
+
+    @Override
+    @EntityGraph(attributePaths = {
+            "doc",
+            "employee",
+            "actionStatus"})
+    Page<DocAction> findAll(Pageable pageable);
 }

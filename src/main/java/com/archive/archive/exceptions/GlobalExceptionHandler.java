@@ -85,4 +85,17 @@ public class GlobalExceptionHandler {
 
         return problem;
     }
+
+    @ExceptionHandler(InvalidDocumentStateException.class)
+    public ProblemDetail handleInvalidDocumentState(
+            InvalidDocumentStateException exception
+    ){
+
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+
+        problem.setTitle("Invalid document state");
+        problem.setDetail(exception.getMessage());
+
+        return problem;
+    }
 }

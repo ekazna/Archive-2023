@@ -1,6 +1,7 @@
 package com.archive.archive.documentrequest;
 
 
+import java.util.Collection;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -26,6 +27,18 @@ public interface DocumentRequestRepo extends
     @EntityGraph(attributePaths = {"doc", "employee"})
     Optional<DocumentRequest> findOne(
             Specification<DocumentRequest> spec
+    );
+
+    boolean existsByDoc_IdAndRequestStatusIn(
+            Integer documentId,
+            Collection<RequestStatus> statuses
+    );
+
+    boolean existsByDoc_IdAndEmployee_IdAndRequestTypeAndRequestStatusIn(
+            Integer documentId,
+            Integer employeeId,
+            RequestType requestType,
+            Collection<RequestStatus> statuses
     );
 
 }
