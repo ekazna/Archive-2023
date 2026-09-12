@@ -209,9 +209,11 @@ public class DocumentRequestService {
         Specification<DocumentRequest> specification =
                 DocumentRequestSpecification.hasId(id)
                         .and(accessibleToCurrentUser());
+
         DocumentRequest request =
                 documentRequestRepo.findOne(specification)
                         .orElseThrow(() -> new ResourceNotFoundException("Document request", id));
+
         return documentRequestMapper.toResponse(request);
     }
 

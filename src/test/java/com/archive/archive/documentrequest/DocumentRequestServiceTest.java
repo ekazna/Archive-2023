@@ -5,8 +5,11 @@ import com.archive.archive.audit.DocumentActionType;
 import com.archive.archive.document.Doc;
 import com.archive.archive.document.DocService;
 import com.archive.archive.document.DocumentStatus;
+import com.archive.archive.documentrequest.dto.DocumentRequestResponse;
 import com.archive.archive.employee.Employee;
+import com.archive.archive.employee.Role;
 import com.archive.archive.exceptions.InvalidRequestStateException;
+import com.archive.archive.exceptions.ResourceNotFoundException;
 import com.archive.archive.security.CurrentUserService;
 
 import org.junit.jupiter.api.Test;
@@ -14,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -42,6 +46,8 @@ class DocumentRequestServiceTest {
 
     @InjectMocks
     private DocumentRequestService documentRequestService;
+
+
 
     @Test
     void createRequest_shouldCreateOriginalRequest(){
@@ -177,6 +183,8 @@ class DocumentRequestServiceTest {
     }
 
 
+
+
     @Test
     public void completeCopyRequest_shouldCompleteRequestedCopy(){
 
@@ -211,7 +219,6 @@ class DocumentRequestServiceTest {
                 admin
         );
     }
-
 
     @Test
     public void completeCopyRequest_shouldRejectOriginalRequest(){
@@ -257,9 +264,65 @@ class DocumentRequestServiceTest {
 
     }
 
+    @Test
+    void completeCopyRequest_shouldRejectDisposedDocument() {
+
+        Doc document = new Doc();
+        document.setId(100);
+        document.setStatus(DocumentStatus.DISPOSED);
+
+        DocumentRequest request = new DocumentRequest();
+        request.setId(50);
+        request.setRequestType(RequestType.COPY);
+        request.setRequestStatus(RequestStatus.REQUESTED);
+        request.setDoc(document);
+
+        when(documentRequestRepo.findById(50))
+                .thenReturn(Optional.of(request));
+
+        InvalidRequestStateException exception = assertThrows(
+                InvalidRequestStateException.class,
+                () -> documentRequestService.completeCopyRequest(50)
+        );
+
+        assertEquals(
+                "Request cannot be completed for a disposed document",
+                exception.getMessage()
+        );
+
+        assertEquals(
+                RequestStatus.REQUESTED,
+                request.getRequestStatus()
+        );
+
+        verifyNoInteractions(docActionService);
+    }
 
     @Test
-    public void issueOriginal_shouldIssueRequestedOriginal(){
+    void completeCopyRequest_shouldThrowWhenRequestNotFound() {
+
+        when(documentRequestRepo.findById(50))
+                .thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> documentRequestService.completeCopyRequest(50)
+        );
+
+        assertEquals(
+                "Document request with id 50 not found",
+                exception.getMessage()
+        );
+
+        verifyNoInteractions(docActionService);
+    }
+
+
+
+
+
+    @Test
+    void issueOriginal_shouldIssueRequestedOriginal(){
         Employee admin = new Employee();
         admin.setId(1);
 
@@ -304,9 +367,8 @@ class DocumentRequestServiceTest {
 
     }
 
-
     @Test
-    public void issueOriginal_shouldRejectCopyRequest(){
+    void issueOriginal_shouldRejectCopyRequest(){
 
         DocumentRequest request = new DocumentRequest();
         request.setId(50);
@@ -326,7 +388,6 @@ class DocumentRequestServiceTest {
         verifyNoInteractions(docActionService);
 
     }
-
 
     @Test
     void issueOriginal_shouldRejectWhenDocumentIsNotPresent() {
@@ -400,6 +461,59 @@ class DocumentRequestServiceTest {
     }
 
     @Test
+    void issueOriginal_shouldRejectDisposedDocument() {
+
+        Doc document = new Doc();
+        document.setId(100);
+        document.setPresent(true);
+        document.setStatus(DocumentStatus.DISPOSED);
+
+        DocumentRequest request = new DocumentRequest();
+        request.setId(50);
+        request.setRequestType(RequestType.ORIGINAL);
+        request.setRequestStatus(RequestStatus.REQUESTED);
+        request.setDoc(document);
+
+        when(documentRequestRepo.findById(50))
+                .thenReturn(Optional.of(request));
+
+        InvalidRequestStateException exception = assertThrows(
+                InvalidRequestStateException.class,
+                () -> documentRequestService.issueOriginal(50)
+        );
+
+        assertEquals(
+                "Disposed document cannot be issued",
+                exception.getMessage()
+        );
+
+        assertEquals(RequestStatus.REQUESTED, request.getRequestStatus());
+        assertTrue(document.getPresent());
+
+        verifyNoInteractions(docActionService);
+    }
+
+    @Test
+    void issueOriginal_shouldThrowWhenRequestNotFound() {
+
+        when(documentRequestRepo.findById(50))
+                .thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> documentRequestService.issueOriginal(50)
+        );
+
+        assertEquals(
+                "Document request with id 50 not found",
+                exception.getMessage()
+        );
+
+        verifyNoInteractions(docActionService);
+    }
+
+
+    @Test
     void returnOriginal_shouldReturnOriginalDocument(){
 
         Employee admin = new Employee();
@@ -446,7 +560,6 @@ class DocumentRequestServiceTest {
                 user
         );
     }
-
 
     @Test
     void returnOriginal_shouldRejectCopyReturns(){
@@ -496,4 +609,81 @@ class DocumentRequestServiceTest {
 
     }
 
+    @Test
+    void returnOriginal_shouldThrowWhenRequestNotFound() {
+
+        when(documentRequestRepo.findById(50))
+                .thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> documentRequestService.returnOriginal(50)
+        );
+
+        assertEquals(
+                "Document request with id 50 not found",
+                exception.getMessage()
+        );
+
+        verifyNoInteractions(docActionService);
+    }
+
+
+
+    @Test
+    void getById_shouldReturnMapperResponse(){
+
+        Employee currentUser = new Employee();
+        currentUser.setId(2);
+        currentUser.setRole(Role.USER);
+
+        DocumentRequest request = new DocumentRequest();
+        request.setId(50);
+
+        DocumentRequestResponse response = new DocumentRequestResponse(
+                50, null, null, null, null, null, null, null);
+
+        when(currentUserService.getCurrentEmployee())
+                .thenReturn(currentUser);
+
+        when(documentRequestRepo.findOne(any(Specification.class)))
+                .thenReturn(Optional.of(request));
+        when(documentRequestMapper.toResponse(request))
+                .thenReturn(response);
+
+        // act
+        DocumentRequestResponse result = documentRequestService.getById(50);
+
+        // assert
+        assertSame(response, result);
+
+        verify(currentUserService).getCurrentEmployee();
+        verify(documentRequestRepo).findOne(any(Specification.class));
+        verify(documentRequestMapper).toResponse(request);
+
+    }
+
+    @Test
+    void getById_shouldThrowWhenRequestNotFound() {
+
+        Employee currentUser = new Employee();
+        currentUser.setId(2);
+        currentUser.setRole(Role.USER);
+
+        when(currentUserService.getCurrentEmployee())
+                .thenReturn(currentUser);
+
+        when(documentRequestRepo.findOne(any(Specification.class)))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> documentRequestService.getById(50)
+        );
+
+        verify(currentUserService).getCurrentEmployee();
+        verify(documentRequestRepo).findOne(any(Specification.class));
+
+        verifyNoInteractions(documentRequestMapper);
+    }
 }
